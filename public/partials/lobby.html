@@ -1,0 +1,57 @@
+<div id="lobby">
+	<div class="modal-wrap" ng-show="!$root.screenName">
+		<div class="modal">
+			<h1 class="heading">Login</h1>
+			<form ng-submit="register()">
+				<p class="table-requirements error" ng-show="registerError">{{registerError}}</p>
+				<input placeholder='Input MemberID' id="screen-name-input" class="joinInput" type="text" ng-model="newScreenName" ng-trim="true" required style="margin-bottom: 2%;">
+				<input placeholder='Input Password' id="screen-password-input" class="joinInput" type="password" ng-model="password" ng-trim="true" required>
+				<button class="submitBtn" value="Submit" style="margin: 15px 0 0 0;">Submit</button>
+			</form>
+		</div>
+		<div id="curtain" ng-show="!$root.screenName"></div>
+	</div>
+	<div class='header-poker'></div>
+	<!-- <div class="modal"> -->
+		<table class="head-room" style="margin: 0; border-bottom: none;" ng-show="$root.screenName">
+			<th style="margin: 0%; text-align: left; font-size: medium; border-right: none;">
+				Name: {{screenName}} <br/>
+				Balance: {{totalChips}}
+			</th>
+			<th style="margin: 0; border-left: none;">
+				<a style="float: right; margin: 0; padding: 1%;" class="button" href="/" ng-click="disconnect()">< Logout</a>
+			</th>
+		</table>
+		<div class="head-room">Room List</div>
+		<div class="roomList">
+			<div class="radioBar" style="margin-left: 14%; border-radius: 20px 0 0 20px;">
+				<input id="all" type="radio" name="all" value="" checked="check" data-ng-model="table.seatsCount">
+				<label for="all"><span></span>All</label>
+			</div>
+			<div class="radioBar">
+				<input id="5seats" type="radio" name="seats" value="5" data-ng-model="table.seatsCount">
+				<label for="5seats"><span></span>5 Seats</label>
+			</div>
+			<div class="radioBar">
+				<input id="7seats" type="radio" name="seats" value="7" data-ng-model="table.seatsCount">
+				<label for="7seats"><span></span>7 Seats</label>
+			</div>
+			<div class="radioBar" style="border-radius: 0 20px 20px 0;">
+				<input id="9seats" type="radio" name="seats" value="9" data-ng-model="table.seatsCount">
+				<label for="9seats"><span></span>9 Seats</label>
+			</div>
+		</div>
+	<!-- </div> -->
+	<table id="table-list">
+		<tr>
+			<th class="dark-border">Name</th>
+			<th class="dark-border">BB/SB</th>
+			<th>Players</th>
+		</tr>
+		<tr ng-repeat="table in lobbyTables | filter:table">
+			<td><a href="/table-{{table.seatsCount}}/{{table.id}}">{{table.name}}</a></td>
+			<td class="centered-text">{{table.bigBlind}}/{{table.smallBlind}}</td>
+			<td class="centered-text">{{table.playersSeatedCount}}/{{table.seatsCount}}</td>
+		</tr>
+	</table>
+</div>

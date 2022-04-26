@@ -1,0 +1,916 @@
+@light-purple: #b365bb;
+@dark-purple: #40004e;
+@purple: #5c015c;
+@transparent-purple: rgba(82, 0, 102, 0.9);
+@lavender: #BE78E8;
+@felt-green: #387C41;
+@dark-greek: #17541D;
+@brown: #724F39;
+
+#content {
+    width: 100%;
+    height: 100%;
+    margin-top: -4%;
+}
+
+body {
+    margin: 0;
+    background: #1a1a1d;
+    font-family: Arial;
+    color: @light-purple;
+    font-size: 1vw !important;
+}
+
+input[type="text"], input[type="number"], input[type="password"] {
+    padding: 8px;
+    border: 1px solid @light-purple;
+    border-radius: 5px;
+    color: @light-purple;
+    font-size: 1.4em;
+}
+
+#bet-input {
+    width: 100%;
+    margin-top: 20px;
+}
+
+input {
+    -webkit-appearance: none;
+    border-radius: 0;
+}
+
+button, input[type="submit"], .button {
+    padding: 10px;
+    background-color: rgba(0,0,0,0);
+    border: 1px solid @light-purple;
+    border-radius: 5px;
+    color: @light-purple;
+    font-size: 1.2vw;
+    font-weight: lighter;
+    margin: 5% 0% 0% -5%;
+
+    &.small {
+        font-size: 1em;
+    }
+
+    &.control-button {
+        padding: 0;
+        height: 60%;
+        width: 80%;
+        background-color: @transparent-purple;
+        border: 3px solid @light-purple;
+        border-radius: 10px;
+        cursor: pointer;
+
+        &.small {
+            font-size: 1em;
+        }
+    }
+}
+
+h1, h2, h3, h4, h5 {
+    margin-top: 0;
+}
+
+a {
+    text-decoration: none;
+    font-family: Arial;
+    color: @light-purple;
+    font-size: 1vw;
+    white-space: nowrap;
+}
+
+.hidden {
+    display: none;
+}
+
+.error {
+    color: #D64937;
+}
+
+table, tr, th, td {
+    border: 1px solid @light-purple;
+    color: @light-purple;
+    border-collapse: collapse;
+    padding: 8px;
+    font-size: 1vw;
+}
+
+table {
+    width: 100%;
+}
+
+#table-wrap {
+    position: relative;
+    height: 100% !important;
+}
+
+#table-list {
+    th {
+        color: #2e1f3e;
+        background-color: @light-purple;
+
+        &.dark-border {
+            border-right: 1px solid #2e1f3e;
+        }
+    }
+
+    .centered-text {
+        text-align: center;
+    }
+    // margin: 40px 0 0;
+}
+
+#table {
+    height: 75%;
+    width: 70%;
+    background-repeat: no-repeat;
+    background-size: 85%;
+    background-image: url(/images/table-1-noBG.png);
+    background-position: 50% 25%;
+    margin-left: 15%;
+    margin-top: 4%;
+}
+
+div.row {
+    height: 25%;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    margin-top: 4%;
+
+    &.controls {
+        background-color: @felt-green;
+        border-radius: 8px 8px 0 0;
+        z-index: 1;
+        height: 25%;
+        margin-top: 0% !important;
+    }
+}
+
+div.cell {
+    float: left;
+    width: 20% !important;
+    height: 80%;
+    position: relative;
+    margin-top: 0% !important;
+
+    button {
+        margin: 20% 10%;
+    }
+}
+
+div.double-cell {
+    float: left;
+    width: 50%;
+    height: 80%;
+}
+
+div.controls {
+    div.cell {
+        width: 15% !important;
+        margin-top: 0% !important;
+        height: 70% !important;
+    }
+
+    div.double-cell {
+        width: 30%;
+        height: 70%;
+
+        .cell-content {
+            padding: 0% 10% 0% 10%;
+        }
+    }
+
+    div.chat-cell {
+        margin-top: 0% !important;
+        float: left;
+        width: 25%;
+        height: 100%;
+    }
+}
+
+input[type="range"] {
+    width: 99%;
+    margin-top: 2%;
+    padding: 0;
+}
+
+.sitIn {
+    padding: 10% 30%;
+    cursor: pointer;
+}
+
+.table-requirements {
+    display: block;
+}
+
+div#chat {
+    height: 95%;
+
+    div#messages {
+        border: 1px solid;
+        border-radius: 8px;
+        height: 65%;
+        margin: 6px 8px 0 8px;
+        background-color: #fff;
+        padding: 8px;
+        overflow: auto;
+
+        p {
+            margin: 0;
+            word-wrap: break-word;
+
+            &.log-message {
+                color: #A69029;
+            }
+        }
+    }
+
+    input[type="submit"] {
+        font-size: 1.2em;
+        padding: 0px 0px;
+        margin: 3px 0 0 -3px;
+        background-color: rgba(46,31,62,0.9);
+        border-radius: 5px;
+        width: 18%;
+        height: 15%;
+    }
+
+    input[type="text"] {
+        width: 77%;
+        font-size: 1em;
+        margin: 0px 0 0 8px;
+        padding: 9px;
+        transform: translate(0, -2px);
+        border-radius: 8px;
+        height: 14%;
+    }
+}
+
+div.player-wrap {
+    width: 45%;
+    margin: 0 auto 0;
+    position: relative;
+    margin-top: 20% !important;
+
+    &.top {
+        margin-top: 45% !important;
+        margin-left: -25% !important;
+    }
+
+    &.bottom {
+        margin-top: 0% !important;
+    }
+
+    &.left {
+        margin-right: 40% !important;
+    }
+
+    &.right {
+        margin-left: 35%;
+    }
+
+    &.side {
+        margin-top: 15% !important;
+    }
+
+    .player-cards {
+        overflow: hidden;
+        height: 95%;
+        left: 12%;
+        position: absolute;
+        top: 0%;
+        width: 13.5%;
+        -webkit-transition: top 0.4s ease;
+        transition: top 0.4s ease;
+
+        &.dealt {
+            top: -91%;
+            overflow: visible;
+        }
+
+        .card:first-child {
+            left: 0;
+            height: 150%;
+        }
+
+        .card {
+            left: 260%;
+            position: absolute;
+            height: 150%;
+        }
+    }
+}
+
+div.seat {
+    padding: 5% 0;
+    background-color: @purple;
+    border: 3px solid @light-purple;
+    border-radius: 5px;
+    color: @light-purple;
+    font-size: 1em;
+    font-weight: lighter;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 0 5px 0 @dark-purple;
+    -webkit-transition: box-shadow 0.2s ease, border 0.2s ease;
+    transition: box-shadow 0.2s ease, border 0.2s ease;
+    width: 90%;
+    left: 11.5%;
+
+    &.active {
+        color: @lavender;
+        border: 3px solid @lavender;
+        box-shadow: 0 0 5px 0 @lavender;
+    }
+
+    .progress {
+        &.active {
+            margin: 2% 0 -8% 0;
+            width: 97%;
+            border: 1px solid #05e35e;
+            height: 2%;
+            border-radius: 5px;
+        }
+    }
+
+    .progress .progress__bar {
+        &.active {
+            height: 100%;
+            width: 0%;
+            background-color: #05e35e;
+            animation: fill-bar 20s;
+        }
+    }
+
+    @keyframes fill-bar {
+        from {
+            width: 0%;
+        }
+
+        to {
+            width: 100%;
+        }
+    }
+
+    p {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        margin: 0;
+    }
+
+    .player-content {
+        span {
+            line-height: 1.2;
+            display: block;
+        }
+
+        .notification {
+            line-height: 2.4;
+        }
+    }
+}
+
+div#board-wrap {
+    margin: 3% 15%;
+    height: 100%;
+
+    .card {
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+        border-radius: 8px;
+        margin: 0 auto;
+    }
+
+    .card-container {
+        width: 3%;
+        display: inline-block;
+        margin: 0 7.2% 0 7.2%;
+        height: 100%;
+    }
+}
+
+.card {
+    background-image: url(/images/deck.png);
+    background-size: 1420% 420%;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 0 3px 0 #808080;
+    overflow: hidden;
+    width: 450%;
+    height: 80%;
+    /**
+		* CSS Sprites
+		*/
+    &.card-As {
+        background-position: 0% 1%;
+    }
+
+    &.card-Ah {
+        background-position: 0% 99.3%;
+    }
+
+    &.card-Ad {
+        background-position: 0.2% 66.5%;
+    }
+
+    &.card-Ac {
+        background-position: 0.2% 33.3%;
+    }
+
+    &.card-Ks {
+        background-position: 7.7% 1%;
+    }
+
+    &.card-Kh {
+        background-position: 7.8% 99.3%;
+    }
+
+    &.card-Kd {
+        background-position: 7.8% 66.5%;
+    }
+
+    &.card-Kc {
+        background-position: 7.8% 33.3%;
+    }
+
+    &.card-Qs {
+        background-position: 15.5% 0.5%;
+    }
+
+    &.card-Qh {
+        background-position: 15.5% 99.3%;
+    }
+
+    &.card-Qd {
+        background-position: 15.5% 66.5%;
+    }
+
+    &.card-Qc {
+        background-position: 15.5% 33.3%;
+    }
+
+    &.card-Js {
+        background-position: 23.2% 0.5%;
+    }
+
+    &.card-Jh {
+        background-position: 23.2% 99%;
+    }
+
+    &.card-Jd {
+        background-position: 23.2% 66.5%;
+    }
+
+    &.card-Jc {
+        background-position: 23.2% 33.3%;
+    }
+
+    &.card-Ts {
+        background-position: 30.9% 0.5%;
+    }
+
+    &.card-Th {
+        background-position: 30.9% 99.3%;
+    }
+
+    &.card-Td {
+        background-position: 30.8% 66.5%;
+    }
+
+    &.card-Tc {
+        background-position: 30.8% 33.3%;
+    }
+
+    &.card-9s {
+        background-position: 38.5% 0.5%;
+    }
+
+    &.card-9h {
+        background-position: 38.6% 99.3%;
+    }
+
+    &.card-9d {
+        background-position: 38.5% 66.5%;
+    }
+
+    &.card-9c {
+        background-position: 38.6% 33.3%;
+    }
+
+    &.card-8s {
+        background-position: 46.3% 0.5%;
+    }
+
+    &.card-8h {
+        background-position: 46.3% 99.3%;
+    }
+
+    &.card-8d {
+        background-position: 46.3% 66.5%;
+    }
+
+    &.card-8c {
+        background-position: 46.3% 33.3%;
+    }
+
+    &.card-7s {
+        background-position: 53.8% 0.5%;
+    }
+
+    &.card-7h {
+        background-position: 53.8% 99.3%;
+    }
+
+    &.card-7d {
+        background-position: 53.8% 66.5%;
+    }
+
+    &.card-7c {
+        background-position: 53.8% 33.3%;
+    }
+
+    &.card-6s {
+        background-position: 61.5% 0.5%;
+    }
+
+    &.card-6h {
+        background-position: 61.5% 99.3%;
+    }
+
+    &.card-6d {
+        background-position: 61.5% 66.5%;
+    }
+
+    &.card-6c {
+        background-position: 61.5% 33.3%;
+    }
+
+    &.card-5s {
+        background-position: 69.2% 0.5%;
+    }
+
+    &.card-5h {
+        background-position: 69.2% 99.3%;
+    }
+
+    &.card-5d {
+        background-position: 69.2% 66.5%;
+    }
+
+    &.card-5c {
+        background-position: 69.4% 33.3%;
+    }
+
+    &.card-4s {
+        background-position: 77% 0.5%
+    }
+
+    &.card-4h {
+        background-position: 77% 99.3%;
+    }
+
+    &.card-4d {
+        background-position: 76.8% 66.5%;
+    }
+
+    &.card-4c {
+        background-position: 77% 33.5%;
+    }
+
+    &.card-3s {
+        background-position: 84.5% 0.5%;
+    }
+
+    &.card-3h {
+        background-position: 84.5% 99.3%;
+    }
+
+    &.card-3d {
+        background-position: 84.5% 66.5%;
+    }
+
+    &.card-3c {
+        background-position: 84.5% 33.3%;
+    }
+
+    &.card-2s {
+        background-position: 92.3% 0.5%;
+    }
+
+    &.card-2h {
+        background-position: 92.2% 99.3%;
+    }
+
+    &.card-2d {
+        background-position: 92.2% 66.5%;
+    }
+
+    &.card-2c {
+        background-position: 92.3% 33.3%;
+    }
+
+    &.card-back {
+        background-position: 99.8% 33%;
+        height: 150%;
+        width: 420%;
+        background-size: 1454% 440%;
+    }
+}
+
+#dealer-wrap-0 {
+    top: 70%;
+    left: 110%;
+}
+
+#dealer-wrap-1 {
+    top: 70%;
+    left: -10%;
+}
+
+#dealer-wrap-2 {
+    top: 0%;
+    left: -10%;
+}
+
+#dealer-wrap-3 {
+    top: 0%;
+    left: -10%;
+}
+
+#dealer-wrap-4 {
+    top: 0%;
+    left: 110%;
+}
+
+#dealer-wrap-5 {
+    top: 70%;
+    left: -15%;
+}
+
+#dealer-wrap-6 {
+    top: 0%;
+    left: 110%;
+}
+
+#dealer-wrap-7 {
+    left: -10%;
+    top: 70%;
+}
+
+#dealer-wrap-8 {
+    top: 70%;
+    left: -10%;
+}
+
+#dealer-wrap-9 {
+    top: 70%;
+    left: 110%;
+}
+
+.dealer-button {
+    position: absolute;
+    border: 2px solid @light-purple;
+    border-radius: 20px;
+    width: 12%;
+    height: 20%;
+    text-align: center;
+    background-color: @transparent-purple;
+    line-height: 1;
+    box-shadow: 0 3px 0 0 #604FAD;
+    font-size: 0.8em;
+}
+
+#bets-0 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-1 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-2 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-3 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-4 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-5 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-6 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-7 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-8 {
+    top: 110%;
+    left: 7%;
+}
+
+#bets-9 {
+    top: 33%;
+    left: 75%;
+}
+
+.bets {
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    font-weight: bold;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+#pot-wrap {
+    height: 10%;
+
+    #pot {
+        display: block;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    }
+}
+
+#to-lobby {
+    right: 160%;
+    font-size: 1em;
+    position: absolute;
+    top: 5%;
+}
+
+.modal-wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+
+    .modal {
+        border-radius: 5px;
+        position: relative;
+        margin: 0 auto;
+        top: 30%;
+        width: 25%;
+        z-index: 100;
+
+        label {
+            display: block;
+            font-size: large;
+            margin-bottom: 10px;
+        }
+
+        .input-left {
+            margin-right: 32px;
+            width: 50%;
+        }
+    }
+
+    #curtain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #1A1A1D;
+        //  rgba(0, 0, 0, 0.4);
+        z-index: 2;
+    }
+}
+
+.joinOuterContainer {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    height: 100vh;
+    align-items: center;
+    background-color: #1A1A1D;
+}
+
+.joinInnerContainer {
+    width: 20%;
+}
+
+.joinInput {
+    border-radius: 0;
+    padding: 15px 20px;
+    width: 100%;
+    margin: 10px 0 10px 0;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+}
+
+.heading {
+    color: @light-purple;
+    font-size: 2.5em;
+    padding-bottom: 10px;
+    border-bottom: 2px solid white;
+    margin-bottom: 20px;
+}
+
+.submitBtn {
+    color: #fff !important;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: @light-purple;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    border: none;
+    width: 100%;
+}
+
+.radioBar {
+    width: 18%;
+    float: left;
+    background-color: #fff;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.header-poker {
+    height: 30%;
+    width: 100%;
+    background-image: url(/images/header-poker.png);
+    background-repeat: no-repeat;
+    background-size: 101%;
+    overflow: hidden;
+    margin-top: 3%;
+    background-position: center;
+}
+
+.head-room {
+    color: @light-purple;
+    font-size: 2.5em;
+    border-bottom: 2px solid white;
+    margin-bottom: 10px;
+    text-align: center;
+    border-top: 2px solid white;
+    // margin-top: 10px;
+}
+
+.roomList {
+    width: 100%;
+    background-color: @light-purple;
+    padding-left: 12%;
+    // width: 19%;
+    float: left;
+    text-align: center;
+    padding: 10px 0;
+    color: black;
+}
+
+#developer-info {
+    margin-top: 8px;
+    font-size: 0.8em;
+
+    a {
+        text-decoration: underline;
+    }
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+input[type="radio"] + label span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: transparent;
+    vertical-align: middle;
+    border: 2px solid @light-purple;
+    border-radius: 50%;
+    padding: 2px;
+    margin: 0 5px;
+}
+
+input[type="radio"]:checked + label span {
+    width: 10px;
+    height: 10px;
+    background: @light-purple;
+    background-clip: content-box;
+}
