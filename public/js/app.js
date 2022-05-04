@@ -1,9 +1,9 @@
-const socket = io.connect('http://localhost:8000/', {
-    // path: '/socket',
-    transports: ['websocket'],
-    auth: { slug: 'slug', token: 'token' },
-});
-// io.connect("http://localhost:8000/", {transports: ["websocket"],});
+const socket = io.connect('http://localhost:8000/',{transports: ["websocket"], upgrade: false});
+// io.connect('http://localhost:8000/', {
+//     // path: '/socket',
+//     transports: ['websocket'],
+//     auth: { slug: 'slug', token: 'token' },
+// });
 
 const app = angular.module('app', ['ngRoute']).config(function ($routeProvider, $locationProvider) {
     $routeProvider.when('/table-9/:tableId', {

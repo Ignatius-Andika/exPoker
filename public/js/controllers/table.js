@@ -32,7 +32,6 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
             } catch (error) {
                 console.log('.success error', error);
             }
-            console.log('DATA', data);
         })
 
         // Joining the socket room

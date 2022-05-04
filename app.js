@@ -68,7 +68,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // to false certified api
 
 // API DB URL
 // var apiUrl = 'http://localhost/PokerAPI/api'
-var apiUrl = 'http://mypokerapp.com:8099/data/api/'
+var apiUrl = 'http://mypoker.com/data/api/'
 
 // Development Only
 if (app.get('env') == 'development') {
@@ -104,6 +104,19 @@ app.get('/', function (req, res) {
   // res.cookie('player', players)
   res.render('index')
 })
+
+// 
+const username = 'andika'
+const password = 'poker_dev'
+// app.get(`?uname=${username}&paswd=${password}`, function (req, res, err) {
+app.get(`/uname=andika&paswd=poker_dev`, function (req, res, err) {
+  res.render('index')  
+})
+
+app.get('/login', function (req, res) {
+  res.render('index')
+})
+// 
 
 // The lobby data (the array of tables and their data)
 app.get('/lobby-data', function (req, res) {
@@ -168,12 +181,13 @@ app.get('/table-9/:tableId', function (req, res) {
 
       // res.cookie('Player Data', 'randomNumber', { maxAge: 900000, httpOnly: true });
       console.log('REQ PARAM TABLE', req.params.tableId);
-      console.log('TABLES REQ PARAM TABLE', tables[req.params.tableId]);
+      // console.log('TABLES REQ PARAM TABLE', tables[req.params.tableId]);
       // if (typeof players[id] !== 'undefined'){
       //   console.log('PLAYER REQ PARAM',players[id] );
       // }
       // res.redirect('/')
-      res.redirect('/table-9/:tableId')
+      const tableId = req.params.tableId
+      res.redirect(`/table-9/${tableId}`)
     }
   } catch (error) {
     console.log('ERROR TABLE 9', error);
@@ -236,17 +250,49 @@ app.get('/table-7/:tableId', function (req, res) {
 
 // If the table is requested manually, redirect to lobby
 app.get('/table-5/:tableId', function (req, res) {
-  for (const i in players) {
-    if (!players[i].public.name && players[i].public.name !== newScreenName) {
-      try {
-        res.redirect('/')
-      } catch (error) {
-        console.log('REFRESH ERROR', error);
-      } 
-    }
-    console.log('PLAYER SCREEN NAME', players[i].public.name);
-}
+//   for (const i in players) {
+//     if (!players[i].public.name && players[i].public.name !== newScreenName) {
+//       try {
+//         res.redirect('/')
+//       } catch (error) {
+//         console.log('REFRESH ERROR', error);
+//       } 
+//     }
+//     console.log('PLAYER SCREEN NAME', players[i].public.name);
+// }
   // res.redirect('/')
+  // res.render('index')
+  // res.end
+  // res.redirect(req.originalUrl)
+  // res.redirect(req.get('referer'));
+
+  for (const i in players) {
+    var player = players[i]
+    var play = {}
+    play.socket = player.socket.id
+    play.playerId = player.public.id 
+    play.name = player.public.name
+    play.balance = player.chips
+
+    console.log('DATA Player Meja 5', play);
+  }
+  try {
+    if (typeof req.params.tableId !== 'undefined' && typeof tables[req.params.tableId] !== 'undefined') {
+      // res.send({ table: tables[req.params.tableId].public })
+      var tableId = req.params.tableId
+
+      // res.cookie('Player Data', 'randomNumber', { maxAge: 900000, httpOnly: true });
+      console.log('REQ PARAM TABLE', req.params.tableId);
+      // console.log('TABLES REQ PARAM TABLE', tables[req.params.tableId]);
+      // if (typeof players[id] !== 'undefined'){
+      //   console.log('PLAYER REQ PARAM',players[id] );
+      // }
+      res.redirect('/')
+      // res.redirect(`/table-5/:${tableId}`)
+    }
+  } catch (error) {
+    console.log('ERROR TABLE 5', error);
+  }
 })
 
 // The table data
@@ -290,6 +336,15 @@ app.get('/table-data/:tableId', function (req, res) {
 })
 
 io.sockets.on('connection', function (socket) {
+  //
+  // socket.handshake.headers
+  console.log(`socket.io connected: ${socket.id}`);
+  // save socket.io socket in the session
+  console.log("session at socket.io connection:\n", socket.request.session);
+  console.log("Socket Connection: ", socket.connected);
+  // socket.request.session.socketio = socket.id;
+  // socket.request.session.save(); 
+  // 
 
   /**
    * When a player enters a room
@@ -334,6 +389,9 @@ io.sockets.on('connection', function (socket) {
       // Remove the player object from the players array
       delete players[socket.id]
     }
+
+    console.log('SOCKET ID DISCONNECT', socket.id);
+    console.log("Socket Connection: ", socket.connected);
   })
 
   /**
@@ -401,7 +459,12 @@ io.sockets.on('connection', function (socket) {
               // Creating the player object
               players[socket.id] = new Player(socket, memberId, newScreenName, balanceAmount)
               callback({ success: true, screenName: newScreenName, totalChips: players[socket.id].chips })
-              console.log('DATA PLAYERS MASUK', players[socket.id]);
+
+              var player = {}
+              player.id = players[socket.id].socket.id
+              player.data = players[socket.id].public 
+              player.balance = players[socket.id].chips
+              console.log('DATA PLAYERS MASUK', player);
 
               // 
               // let cookieString = socket.request.headers.cookie;
@@ -716,6 +779,6 @@ request(`${apiUrl}/tablepoker`, function (err, res, req) {
   }
   for (const id in data) {
     const dt = data[id]
-    tables[id] = new Table(dt.TableID, dt.TableName, eventEmitter(id), dt.SeatsCount, dt.BigBlind, dt.SmallBlind, dt.MaxBuy, dt.MinBuy)
+    tables[id] = new Table(dt.TableID, dt.TableName, eventEmitter(id), dt.SeatsCount, dt.BigBlind, dt.SmallBlind, dt.Maxbuy, dt.MinBuy)
   }
 })

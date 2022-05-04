@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {font-family: Arial, Helvetica, sans-serif;}
+  form {
+    border: 3px solid #f1f1f1;
+    width: 40%;
+    text-align: center;
+    position: relative;
+    margin: 0 auto;
+    margin-top: 5%;
+  }
+
+  input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  button {
+    background-color: #04AA6D;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  button:hover {
+    opacity: 0.8;
+  }
+
+  .cancelbtn {
+    width: auto;
+    padding: 10px 18px;
+    background-color: #f44336;
+  }
+
+  .imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+  }
+
+  img.avatar {
+    width: 40%;
+    border-radius: 50%;
+  }
+
+  .container {
+    padding: 16px;
+  }
+
+  span.psw {
+    float: right;
+    padding-top: 16px;
+  }
+
+  /* Change styles for span and cancel button on extra small screens */
+  @media screen and (max-width: 300px) {
+    span.psw {
+      display: block;
+      float: none;
+    }
+    .cancelbtn {
+      width: 100%;
+    }
+  }
+</style>
+<script>
+  function login(){
+
+  var keyStr = "ABCDEFGHIJKLMNOP" +
+              "QRSTUVWXYZabcdef" +
+              "ghijklmnopqrstuv" +
+              "wxyz0123456789+/" ;
+
+  // ENCRYPT USERID
+  var inuser =  document.getElementById("userid").value;
+  var outuser = "";
+  var u_chr1, u_chr2, u_chr3 = "";
+  var u_enc1, u_enc2, u_enc3, u_enc4 = "";
+  var i = 0;
+
+  do {
+    u_chr1 = inuser.charCodeAt(i++);
+    u_chr2 = inuser.charCodeAt(i++);
+    u_chr3 = inuser.charCodeAt(i++);
+
+    u_enc1 = u_chr1 >> 2;
+    u_enc2 = ((u_chr1 & 3) << 4) | (u_chr2 >> 4);
+    u_enc3 = ((u_chr2 & 15) << 2) | (u_chr3 >> 6);
+    u_enc4 = u_chr3 & 63;
+
+    if (isNaN(u_chr2)) {
+        u_enc3 = u_enc4 = 64;
+    } else if (isNaN(u_chr3)) {
+        u_enc4 = 64;
+    }
+
+    outuser = outuser +
+        keyStr.charAt(u_enc1) +
+        keyStr.charAt(u_enc2) +
+        keyStr.charAt(u_enc3) +
+        keyStr.charAt(u_enc4);
+    u_chr1 = u_chr2 = u_chr3 = "";
+    u_enc1 = u_enc2 = u_enc3 = u_enc4 = "";
+  } while (i < inuser.length);
+  // 
+
+  // ENCRYPT PASSWORD
+  var inpass =  document.getElementById("password").value;
+  var outpass = "";
+  var p_chr1, p_chr2, p_chr3 = "";
+  var p_enc1, p_enc2, p_enc3, p_enc4 = "";
+  var i = 0;
+
+  do {
+    p_chr1 = inpass.charCodeAt(i++);
+    p_chr2 = inpass.charCodeAt(i++);
+    p_chr3 = inpass.charCodeAt(i++);
+
+    p_enc1 = p_chr1 >> 2;
+    p_enc2 = ((p_chr1 & 3) << 4) | (p_chr2 >> 4);
+    p_enc3 = ((p_chr2 & 15) << 2) | (p_chr3 >> 6);
+    p_enc4 = p_chr3 & 63;
+
+    if (isNaN(p_chr2)) {
+        p_enc3 = p_enc4 = 64;
+    } else if (isNaN(p_chr3)) {
+        p_enc4 = 64;
+    }
+
+    outpass = outpass +
+        keyStr.charAt(p_enc1) +
+        keyStr.charAt(p_enc2) +
+        keyStr.charAt(p_enc3) +
+        keyStr.charAt(p_enc4);
+    p_chr1 = p_chr2 = p_chr3 = "";
+    p_enc1 = enc2 = enc3 = p_enc4 = "";
+  } while (i < inpass.length);
+  // 
+
+    var userid = 
+      document.getElementById("userid").value;
+    var password = 
+      document.getElementById("password").value;
+      window.open(`http://mypoker.com?userid=${outuser}&password=${outpass}`, "_blank")
+  }
+</script>
+</head>
+<body>
+
+    <div style="text-align: center;">
+        <h2>Login Form</h2>
+
+        <form id="login-form">
+            <div class="container">
+                <label for="uname"><b>Username</b></label>
+                <input id="userid" type="text" placeholder="Enter Username" name="uname" required>
+
+                <label for="psw"><b>Password</b></label>
+                <input id="password" type="password" placeholder="Enter Password" name="pswd" required>
+                    
+                <button id="login-form-submit" value="login" type="submit" onclick="login()">Login</button>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>
+
+<script>
+    
+</script>
