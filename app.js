@@ -28,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 // }))
 
 const cookieParser = require('cookie-parser');
+const { unescape } = require('querystring')
 app.use(cookieParser());
 
 // function pushCookie() {
@@ -78,6 +79,8 @@ if (app.get('env') == 'development') {
 const players = []
 const tables = []
 var eventEmitter = {}
+var uid = ''
+var pswd = ''
 
 const port = process.env.PORT || 8000
 // const port = 8000
@@ -96,26 +99,38 @@ console.log('Listening on port ' + port)
 
 // The lobby
 app.get('/', function (req, res) {
-  // const pemain = []
-  // for (let i in players) {
-  //   var player = {}
-    
-  // }
-  // res.cookie('player', players)
+  uid = req.query['uid']
+  pswd = req.query['pswd']
+  console.log('INI PARAM USER ID', uid);
+  console.log('INI PARAM PASSWORD', pswd);
   res.render('index')
 })
 
-// 
-const username = 'andika'
-const password = 'poker_dev'
-// app.get(`?uname=${username}&paswd=${password}`, function (req, res, err) {
-app.get(`/uname=andika&paswd=poker_dev`, function (req, res, err) {
-  res.render('index')  
-})
+//
+// app.get('/lobby', function (req, res) {
+//   console.log('INI PARAM USER ID', req.query['uid']);
+//   console.log('INI PARAM PASSWORD', req.query['pswd']);
+//   res.render('index')
+// })
 
-app.get('/login', function (req, res) {
-  res.render('index')
-})
+// app.get(`/uid=:userId&paswd=:password`, function (req, res, err) {
+//     var player = {
+//         userId: req.params.userId,
+//         password: req.params.password
+//     };
+//     console.log('get param login', player);
+//     res.render('PARAM USER ID', req.params.userId);
+// })
+
+// app.get('/uid/:userId/pswd/:password', function (req, res) {
+//   // res.render('index')
+//   var player = {
+//     userId: req.params.userId,
+//     password: req.params.password
+//   };
+//   console.log('get param login', player);
+//   res.render('index');
+// })
 // 
 
 // The lobby data (the array of tables and their data)
@@ -338,13 +353,106 @@ app.get('/table-data/:tableId', function (req, res) {
 io.sockets.on('connection', function (socket) {
   //
   // socket.handshake.headers
+  socket.id = uid
+  socket.connected = true
   console.log(`socket.io connected: ${socket.id}`);
   // save socket.io socket in the session
-  console.log("session at socket.io connection:\n", socket.request.session);
+  // console.log("session at socket.io connection:\n", socket.request.session);
   console.log("Socket Connection: ", socket.connected);
   // socket.request.session.socketio = socket.id;
   // socket.request.session.save(); 
-  // 
+
+  uid = decode(uid)
+  pswd = decode(pswd)
+
+  console.log('USER ID = ', uid);
+  console.log('PASSWORD = ', pswd);
+
+  loginParams()
+
+  // if (uid !== 'undefined' && pswd !== 'undefined') {
+  //   var newScreenName = newScreenName.trim()
+  //   var password = password.trim()
+
+  //   request(`${apiUrl}/memberpoker/${newScreenName}/${password}`, function (err, res, req) {
+  //     if (err) {
+  //       console.log(err);
+  //     } else {
+  //       var member = JSON.parse(req);
+  //     }
+
+
+  //     for (let i in member) {
+
+  //       var memberId = member[i].Member_UserID
+  //       var newScreenName = member[i].MemberUserName
+  //       var balanceAmount = member[i].BalanceAmount
+
+  //       // If the new screen name is not an empty string
+  //       if (newScreenName && typeof players[socket.id] === 'undefined') {
+  //         let nameExists = false
+  //         for (const i in players) {
+  //           if (players[i].public.name && players[i].public.name == newScreenName) {
+  //             nameExists = true
+  //             break
+  //           }
+  //         }
+
+  //         if (!nameExists) {
+  //           // Creating the player object
+  //           players[socket.id] = new Player(socket, memberId, newScreenName, balanceAmount)
+  //           callback({ success: true, screenName: newScreenName, totalChips: players[socket.id].chips })
+
+  //           var player = {}
+  //           player.id = players[socket.id].socket.id
+  //           player.data = players[socket.id].public 
+  //           player.balance = players[socket.id].chips
+  //           console.log('DATA PLAYERS MASUK', player);
+            
+  //           try {
+  //               const player = []
+  //               const dt = []
+  //               for (const i in players) {
+  //                 player[i] = {}
+  //                 player[i].id = players[i].public.id
+  //                 player[i].name = players[i].public.name
+  //                 // player[i].chips = players[i].chips
+  //               }
+  //               for (const i in tables){
+  //                 dt[i] = {}
+  //                 dt[i].id = tables[i].public.id
+  //                 var tname = tables[i].public.name
+  //                 dt[i].name = tables[i].public.name
+  //                 dt[i].seatsCount = tables[i].public.seatsCount
+  //                 dt[i].playersSeatedCount = tables[i].public.playersSeatedCount
+  //                 dt[i].bigBlind = tables[i].public.bigBlind
+  //                 dt[i].smallBlind = tables[i].public.smallBlind
+  //               }
+  //                 res.cookie('DATA TABLE',dt, { maxAge: 900000, httpOnly: true });
+  //                 res.cookie('DATA PLAYER',player, { maxAge: 900000, httpOnly: true });
+  //                 console.log('cookie created successfully');
+  //                 console.log('cookie exists', cookie);
+  //               next(); // <-- important!                
+  //           } catch (error) {
+  //             console.log('INI ERROR COOKIE', error);
+  //           } 
+
+  //         } else {
+  //           callback({ success: false, message: 'This account is taken' })
+  //         }
+
+  //       } else {
+  //         callback({ success: false, message: 'Wrong ID / Password' })
+  //       }
+
+  //     }
+
+  //   })
+
+  // } else {
+  //   callback({ success: false, message: 'Enter Username and Password' })
+  // }
+  
 
   /**
    * When a player enters a room
@@ -376,22 +484,23 @@ io.sockets.on('connection', function (socket) {
    */
   socket.on('disconnect', function () {
     // If the socket points to a player object
-    if (typeof players[socket.id] !== 'undefined') {
-      // If the player was sitting on a table
-      if (players[socket.id].sittingOnTable !== false && typeof tables[players[socket.id].sittingOnTable] !== 'undefined') {
-        // The seat on which the player was sitting
-        const seat = players[socket.id].seat
-        // The table on which the player was sitting
-        const tableId = players[socket.id].sittingOnTable
-        // Remove the player from the seat
-        tables[tableId].playerLeft(seat)
-      }
-      // Remove the player object from the players array
-      delete players[socket.id]
-    }
+    // if (typeof players[socket.id] !== 'undefined') {
+    //   // If the player was sitting on a table
+    //   if (players[socket.id].sittingOnTable !== false && typeof tables[players[socket.id].sittingOnTable] !== 'undefined') {
+    //     // The seat on which the player was sitting
+    //     const seat = players[socket.id].seat
+    //     // The table on which the player was sitting
+    //     const tableId = players[socket.id].sittingOnTable
+    //     // Remove the player from the seat
+    //     tables[tableId].playerLeft(seat)
+    //   }
+    //   // Remove the player object from the players array
+    //   delete players[socket.id]
+    // }
 
+    console.log('Client Disconnected');
     console.log('SOCKET ID DISCONNECT', socket.id);
-    console.log("Socket Connection: ", socket.connected);
+    console.log('Socket Connection: ', socket.connected);
   })
 
   /**
@@ -782,3 +891,103 @@ request(`${apiUrl}/tablepoker`, function (err, res, req) {
     tables[id] = new Table(dt.TableID, dt.TableName, eventEmitter(id), dt.SeatsCount, dt.BigBlind, dt.SmallBlind, dt.Maxbuy, dt.MinBuy)
   }
 })
+
+//decode64 URL Params String
+function decode(input){
+  var keyStr = "ABCDEFGHIJKLMNOP" +
+  "QRSTUVWXYZabcdef" +
+  "ghijklmnopqrstuv" +
+  "wxyz0123456789+/" ;
+
+  var output = "";
+  var chr1, chr2, chr3 = "";
+  var enc1, enc2, enc3, enc4 = "";
+  var i = 0;
+
+  input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+  do {
+     enc1 = keyStr.indexOf(input.charAt(i++));
+     enc2 = keyStr.indexOf(input.charAt(i++));
+     enc3 = keyStr.indexOf(input.charAt(i++));
+     enc4 = keyStr.indexOf(input.charAt(i++));
+
+     chr1 = (enc1 << 2) | (enc2 >> 4);
+     chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+     chr3 = ((enc3 & 3) << 6) | enc4;
+
+     output = output + String.fromCharCode(chr1);
+
+     if (enc3 != 64) {
+        output = output + String.fromCharCode(chr2);
+     }
+     if (enc4 != 64) {
+        output = output + String.fromCharCode(chr3);
+     }
+
+     chr1 = chr2 = chr3 = "";
+     enc1 = enc2 = enc3 = enc4 = "";
+
+  } while (i < input.length);
+
+  return unescape(output);
+}
+
+function loginParams() { 
+if (uid !== 'undefined' && pswd !== 'undefined') {
+  console.log('INI UID LOGIN PARAMS = ', uid);
+  console.log('INI PSWD LOGIN PARAMS = ', pswd);
+
+  request(`${apiUrl}/memberpoker/${uid}/${pswd}`, function (err, res, req) {
+    if (err) {
+      console.log(err);
+    } else {
+      var member = JSON.parse(req);
+    }
+
+
+    for (let i in member) {
+
+      var memberId = member[i].Member_UserID
+      var newScreenName = member[i].MemberUserName
+      var balanceAmount = member[i].BalanceAmount
+
+      // If the new screen name is not an empty string
+      if (newScreenName && typeof players[socket.id] === 'undefined') {
+        let nameExists = false
+        for (const i in players) {
+          if (players[i].public.name && players[i].public.name == newScreenName) {
+            nameExists = true
+            break
+          }
+        }
+
+        if (!nameExists) {
+          // Creating the player object
+          players[socket.id] = new Player(socket, memberId, newScreenName, balanceAmount)
+          callback({ success: true, screenName: newScreenName, totalChips: players[socket.id].chips })
+
+          var player = {}
+          player.id = players[socket.id].socket.id
+          player.data = players[socket.id].public 
+          player.balance = players[socket.id].chips
+          console.log('DATA PLAYERS MASUK', player);
+          
+        } else {
+          callback({ success: false, message: 'This account is taken' })
+        }
+
+      } else {
+        callback({ success: false, message: 'Wrong ID / Password' })
+      }
+
+    }
+
+  })
+
+} else {
+  // callback({ success: false, message: 'Enter Username and Password' })
+  alert("Your User ID and Password doesn't match!!\n" +
+        "Please Relogin!\n");
+} 
+}

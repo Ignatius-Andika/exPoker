@@ -80,7 +80,7 @@
               "ghijklmnopqrstuv" +
               "wxyz0123456789+/" ;
 
-  // ENCRYPT USERID
+  /* ENCRYPT USERID */
   var inuser =  document.getElementById("userid").value;
   var outuser = "";
   var u_chr1, u_chr2, u_chr3 = "";
@@ -113,7 +113,8 @@
   } while (i < inuser.length);
   // 
 
-  // ENCRYPT PASSWORD
+  
+  /* ENCRYPT PASSWORD */
   var inpass =  document.getElementById("password").value;
   var outpass = "";
   var p_chr1, p_chr2, p_chr3 = "";
@@ -150,7 +151,7 @@
       document.getElementById("userid").value;
     var password = 
       document.getElementById("password").value;
-      window.open(`http://mypoker.com?userid=${outuser}&password=${outpass}`, "_blank")
+      window.open(`http://mypoker.com/?uid=${outuser}&pswd=${outpass}`, "_blank")
   }
 </script>
 </head>

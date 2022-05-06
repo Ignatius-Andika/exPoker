@@ -4,6 +4,7 @@ const socket = io.connect('http://localhost:8000/',{transports: ["websocket"], u
 //     transports: ['websocket'],
 //     auth: { slug: 'slug', token: 'token' },
 // });
+console.log('SOCKET ID PLAYER', socket.id);
 
 const app = angular.module('app', ['ngRoute']).config(function ($routeProvider, $locationProvider) {
     $routeProvider.when('/table-9/:tableId', {
@@ -26,7 +27,17 @@ const app = angular.module('app', ['ngRoute']).config(function ($routeProvider, 
         controller: 'LobbyController'
     })
 
-    $routeProvider.otherwise({ redirectTo: '/' })
+    $routeProvider.when('/lobby', {
+        templateUrl: '/partials/lobby.html',
+        controller: 'LobbyController'
+    })
+
+    $routeProvider.when('/uid/:userId/pswd/:password', {
+        templateUrl: '/partials/lobby.html',
+        controller: 'LobbyController'
+    })
+
+    // $routeProvider.otherwise({ redirectTo: '/' })
 
     $locationProvider.html5Mode(true).hashPrefix('!')
 })
