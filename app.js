@@ -69,7 +69,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // to false certified api
 
 // API DB URL
 // var apiUrl = 'http://localhost/PokerAPI/api'
-var apiUrl = 'http://mypoker.com/data/api/'
+var apiUrl = 'http://mypoker.com/data/api'
 
 // Development Only
 if (app.get('env') == 'development') {
@@ -146,29 +146,18 @@ app.get('/lobby-data', function (req, res) {
     lobbyTables[tableId].bigBlind = tables[tableId].public.bigBlind
     lobbyTables[tableId].smallBlind = tables[tableId].public.smallBlind
   }
-
-  // 
-  const player = []
-  for (const i in players) {
-    player[i] = {}
-    player[i].id = players[i].public.id
-    player[i].name = players[i].public.name
-    player[i].chips = players[i].chips
-
-    var pemain = {}
-    pemain.id = players[i].public.id
-    pemain.name = players[i].public.name
-    pemain.chips = players[i].chips
-    // pl.room = player[i].room
-  }
-  res.cookie("table", lobbyTables);
-  res.cookie("player", player);
-  console.log('COOKIE PLAYER', player);
-  // var table = JSON.parse(cookie("table"));
-  // console.log('COOKIE TABLE', table);
-
   res.send(lobbyTables)
 })
+
+// // The Player Data (Object Data Player)
+// app.get('/player-data', function (req, res){
+//   const data_player = []
+//   for (i in players) {
+//     // Sending the public data of the public players to the lobby screen
+//     data_player[i] = {}
+//     data_player[i].id = players[i]
+//   }
+// })
 
 // If the table is requested manually, redirect to lobby
 app.get('/table-9/:tableId', function (req, res) {
@@ -362,96 +351,90 @@ io.sockets.on('connection', function (socket) {
   // socket.request.session.socketio = socket.id;
   // socket.request.session.save(); 
 
-  uid = decode(uid)
-  pswd = decode(pswd)
+  uid = decode(uid).toString()
+  pswd = decode(pswd).toString()
 
   console.log('USER ID = ', uid);
   console.log('PASSWORD = ', pswd);
+  
+  // loginParams()
 
-  loginParams()
+  // var urlPlayer = `${apiUrl}/memberpoker/${uid}/${pswd}`
+  var urlPlayer = apiUrl+'/memberpoker/'+uid+'/'+pswd
+  // var getPlayer = encodeURI(urlPlayer)
+  var getPlayer = urlPlayer.toString()
 
-  // if (uid !== 'undefined' && pswd !== 'undefined') {
-  //   var newScreenName = newScreenName.trim()
-  //   var password = password.trim()
+  if (uid !== 'undefined' && pswd !== 'undefined') {
+    console.log('INI UID LOGIN PARAMS = ', uid);
+    console.log('INI PSWD LOGIN PARAMS = ', pswd);
+    console.log('INI REQ LOGIN PARAMS = ', getPlayer);
+  
+    try {
+    request(apiUrl+'memberpoker/'+uid+'/'+pswd, function (err, res, req) {
+      // request(getPlayer, function (err, res, req) {
+      console.log('REQUEST USER ID', uid);
+      console.log('REQUEST PASSWORD', pswd);
+      if (err) {
+        console.log('ERROR REQUEST PLAYER', err);
+        console.log('ERROR REQUEST USER ID', uid);
+        console.log('ERROR REQUEST PASSWORD', pswd);
+      } else {
+        var member = JSON.parse(req);
+        // var member = req;
+        console.log('DATA REQ PLAYER', member);
+      }
+  
+  
+      for (let i in member) {
+  
+        var memberId = member[i].Member_UserID
+        var newScreenName = member[i].MemberUserName
+        var balanceAmount = member[i].BalanceAmount
 
-  //   request(`${apiUrl}/memberpoker/${newScreenName}/${password}`, function (err, res, req) {
-  //     if (err) {
-  //       console.log(err);
-  //     } else {
-  //       var member = JSON.parse(req);
-  //     }
-
-
-  //     for (let i in member) {
-
-  //       var memberId = member[i].Member_UserID
-  //       var newScreenName = member[i].MemberUserName
-  //       var balanceAmount = member[i].BalanceAmount
-
-  //       // If the new screen name is not an empty string
-  //       if (newScreenName && typeof players[socket.id] === 'undefined') {
-  //         let nameExists = false
-  //         for (const i in players) {
-  //           if (players[i].public.name && players[i].public.name == newScreenName) {
-  //             nameExists = true
-  //             break
-  //           }
-  //         }
-
-  //         if (!nameExists) {
-  //           // Creating the player object
-  //           players[socket.id] = new Player(socket, memberId, newScreenName, balanceAmount)
-  //           callback({ success: true, screenName: newScreenName, totalChips: players[socket.id].chips })
-
-  //           var player = {}
-  //           player.id = players[socket.id].socket.id
-  //           player.data = players[socket.id].public 
-  //           player.balance = players[socket.id].chips
-  //           console.log('DATA PLAYERS MASUK', player);
+        console.log('REQ SOCKET ID', players[socket.id]);
+  
+        // If the new screen name is not an empty string
+        if (newScreenName && typeof players[socket.id] === 'undefined') {
+          let nameExists = false
+          for (const i in players) {
+            if (players[i].public.name && players[i].public.name == newScreenName) {
+              nameExists = true
+              break
+            }
+          }
+  
+          if (!nameExists) {
+            // Creating the player object
+            players[socket.id] = new Player(socket, memberId, newScreenName, balanceAmount)
+            // callback({ success: true, screenName: newScreenName, totalChips: players[socket.id].chips })
+  
+            var player = {}
+            player.id = players[socket.id].socket.id
+            player.data = players[socket.id].public 
+            player.balance = players[socket.id].chips
+            console.log('DATA PLAYERS MASUK', player);
+            console.log('DATA PLAYERS ONLINE', players[socket.id]);
             
-  //           try {
-  //               const player = []
-  //               const dt = []
-  //               for (const i in players) {
-  //                 player[i] = {}
-  //                 player[i].id = players[i].public.id
-  //                 player[i].name = players[i].public.name
-  //                 // player[i].chips = players[i].chips
-  //               }
-  //               for (const i in tables){
-  //                 dt[i] = {}
-  //                 dt[i].id = tables[i].public.id
-  //                 var tname = tables[i].public.name
-  //                 dt[i].name = tables[i].public.name
-  //                 dt[i].seatsCount = tables[i].public.seatsCount
-  //                 dt[i].playersSeatedCount = tables[i].public.playersSeatedCount
-  //                 dt[i].bigBlind = tables[i].public.bigBlind
-  //                 dt[i].smallBlind = tables[i].public.smallBlind
-  //               }
-  //                 res.cookie('DATA TABLE',dt, { maxAge: 900000, httpOnly: true });
-  //                 res.cookie('DATA PLAYER',player, { maxAge: 900000, httpOnly: true });
-  //                 console.log('cookie created successfully');
-  //                 console.log('cookie exists', cookie);
-  //               next(); // <-- important!                
-  //           } catch (error) {
-  //             console.log('INI ERROR COOKIE', error);
-  //           } 
-
-  //         } else {
-  //           callback({ success: false, message: 'This account is taken' })
-  //         }
-
-  //       } else {
-  //         callback({ success: false, message: 'Wrong ID / Password' })
-  //       }
-
-  //     }
-
-  //   })
-
-  // } else {
-  //   callback({ success: false, message: 'Enter Username and Password' })
-  // }
+          } else {
+            callback({ success: false, message: 'This account is taken' })
+          }
+  
+        } else {
+          // callback({ success: false, message: 'Wrong ID / Password' })
+          console.log('WRONG UID/PASSWORD');
+        }
+  
+      }
+    }) 
+    } catch (error) {
+      console.log('ERROR REQUEST DATA PLAYER', error);
+    }
+  
+  } else {
+    // callback({ success: false, message: 'Enter Username and Password' })
+    alert("Your User ID and Password doesn't match!!\n" +
+          "Please Relogin!\n");
+  }
   
 
   /**
@@ -533,12 +516,74 @@ io.sockets.on('connection', function (socket) {
    * @param function callback
    */
   // 
-  socket.on('register', function (newScreenName, password, callback) {
+  // socket.on('register', function (newScreenName, password, callback) {
+  //   console.log('NEWSCREENNAME', newScreenName);
+  //   console.log('PASSWORD', password);
+  //// If a new screen name is posted
+  //   if (typeof newScreenName !== 'undefined' && typeof password !== 'undefined') {
+  //     var newScreenName = newScreenName.trim()
+  //     var password = password.trim()
 
+  //     request(`${apiUrl}/memberpoker/${newScreenName}/${password}`, function (err, res, req) {
+  //       if (err) {
+  //         console.log(err);
+  //       } else {
+  //         var member = JSON.parse(req);
+  //       }
+
+
+  //       for (let i in member) {
+
+  //         var memberId = member[i].Member_UserID
+  //         var newScreenName = member[i].MemberUserName
+  //         var balanceAmount = member[i].BalanceAmount
+
+  //         // If the new screen name is not an empty string
+  //         if (newScreenName && typeof players[socket.id] === 'undefined') {
+  //           let nameExists = false
+  //           for (const i in players) {
+  //             if (players[i].public.name && players[i].public.name == newScreenName) {
+  //               nameExists = true
+  //               break
+  //             }
+  //           }
+
+  //           if (!nameExists) {
+  //             // Creating the player object
+  //             players[socket.id] = new Player(socket, memberId, newScreenName, balanceAmount)
+  //             callback({ success: true, screenName: newScreenName, totalChips: players[socket.id].chips })
+
+  //             var player = {}
+  //             player.id = players[socket.id].socket.id
+  //             player.data = players[socket.id].public 
+  //             player.balance = players[socket.id].chips
+  //             console.log('DATA PLAYERS MASUK', player); 
+
+  //           } else {
+  //             callback({ success: false, message: 'This account is taken' })
+  //           }
+
+  //         } else {
+  //           callback({ success: false, message: 'Wrong ID / Password' })
+  //         }
+
+  //       }
+
+  //     })
+
+  //   } else {
+  //     callback({ success: false, message: 'Enter Username and Password' })
+  //   }
+  // })
+
+  socket.on('register', function (uid, pswd, callback) {
+    console.log('SOCKET EMIT UID =', uid);
+    console.log('SOCKET EMIT PSWD', pswd);
     // If a new screen name is posted
-    if (typeof newScreenName !== 'undefined' && typeof password !== 'undefined') {
-      var newScreenName = newScreenName.trim()
-      var password = password.trim()
+    if (uid !== 'undefined' && typeof pswd !== 'undefined') {
+      var newScreenName = uid.trim()
+      var password = pswd.trim()
+      console.log('SOCKET EMIT UID & PSWD', newScreenName, password);
 
       request(`${apiUrl}/memberpoker/${newScreenName}/${password}`, function (err, res, req) {
         if (err) {
@@ -573,64 +618,7 @@ io.sockets.on('connection', function (socket) {
               player.id = players[socket.id].socket.id
               player.data = players[socket.id].public 
               player.balance = players[socket.id].chips
-              console.log('DATA PLAYERS MASUK', player);
-
-              // 
-              // let cookieString = socket.request.headers.cookie;
-              // console.log('INI COOKIE STRING', cookieString);
-
-              // const player = []
-              // for (const i in players) {
-              //   // Sending the public data of the public tables to the lobby screen
-              //   player[i] = {}
-              //   player[i].id = players[i].public.id
-              //   player[i].name = players[i].public.name
-              //   player[i].chips = players[i].chips
-              //   // player[i].room = player[i].room
-              // }
-              // console.log('TEST DATA PLAYER', player);
-
-              //
-              try {
-                // app.use(function (req, res, next) {
-                  // check if client sent cookie
-                  // var cookie = req.cookies.cookieName;
-                  const player = []
-                  const dt = []
-                  for (const i in players) {
-                    player[i] = {}
-                    player[i].id = players[i].public.id
-                    player[i].name = players[i].public.name
-                    // player[i].chips = players[i].chips
-                  }
-                  for (const i in tables){
-                    dt[i] = {}
-                    dt[i].id = tables[i].public.id
-                    var tname = tables[i].public.name
-                    dt[i].name = tables[i].public.name
-                    dt[i].seatsCount = tables[i].public.seatsCount
-                    dt[i].playersSeatedCount = tables[i].public.playersSeatedCount
-                    dt[i].bigBlind = tables[i].public.bigBlind
-                    dt[i].smallBlind = tables[i].public.smallBlind
-                  }
-                  // if (cookie === undefined) {
-                    // no: set a new cookie
-                    // var randomNumber=Math.random().toString();
-                    // randomNumber=randomNumber.substring(2,randomNumber.length);
-                    res.cookie('DATA TABLE',dt, { maxAge: 900000, httpOnly: true });
-                    res.cookie('DATA PLAYER',player, { maxAge: 900000, httpOnly: true });
-                    // res.cookie('PLAYER',player, { maxAge: 900000, httpOnly: true });
-                    console.log('cookie created successfully');
-                  // } else {
-                    // yes, cookie was already present 
-                    console.log('cookie exists', cookie);
-                  // } 
-                  next(); // <-- important!
-                // });                
-              } catch (error) {
-                console.log('INI ERROR COOKIE', error);
-              } 
-              // 
+              console.log('DATA PLAYERS MASUK', player); 
 
             } else {
               callback({ success: false, message: 'This account is taken' })
@@ -930,8 +918,10 @@ function decode(input){
 
   } while (i < input.length);
 
-  return unescape(output);
+  return unescape(output.toString());
+  // return (output.toString());
 }
+
 
 function loginParams() { 
 if (uid !== 'undefined' && pswd !== 'undefined') {
@@ -972,6 +962,7 @@ if (uid !== 'undefined' && pswd !== 'undefined') {
           player.data = players[socket.id].public 
           player.balance = players[socket.id].chips
           console.log('DATA PLAYERS MASUK', player);
+          console.log('DATA PLAYERS ONLINE', players[socket.id]);
           
         } else {
           callback({ success: false, message: 'This account is taken' })
@@ -982,7 +973,6 @@ if (uid !== 'undefined' && pswd !== 'undefined') {
       }
 
     }
-
   })
 
 } else {

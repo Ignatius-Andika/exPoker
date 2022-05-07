@@ -1,5 +1,5 @@
 <div id="lobby">
-	<div class="modal-wrap" ng-show="!$root.screenName">
+	<!-- <div class="modal-wrap" ng-show="!$root.screenName">
 		<div class="modal">
 			<h1 class="heading">Login</h1>
 			<form ng-submit="register()">
@@ -10,16 +10,15 @@
 			</form>
 		</div>
 		<div id="curtain" ng-show="!$root.screenName"></div>
-	</div>
+	</div> -->
 	<div class='header-poker'></div>
-	<!-- <div class="modal"> -->
 		<table class="head-room" style="margin: 0; border-bottom: none;" ng-show="$root.screenName">
 			<th style="margin: 0%; text-align: left; font-size: medium; border-right: none;">
 				Name: {{screenName}} <br/>
 				Balance: {{totalChips}}
 			</th>
 			<th style="margin: 0; border-left: none;">
-				<a style="float: right; margin: 0; padding: 1%;" class="button" href="/" ng-click="disconnect()">< Logout</a>
+				<a style="float: right; margin: 0; padding: 1%;" class="button" href="javascript:javascript:window.top.close()" ng-submit="disconnect()">< Logout</a>
 			</th>
 		</table>
 		<div class="head-room">Room List</div>
@@ -41,7 +40,6 @@
 				<label for="9seats"><span></span>9 Seats</label>
 			</div>
 		</div>
-	<!-- </div> -->
 	<table id="table-list">
 		<tr>
 			<th class="dark-border">Name</th>

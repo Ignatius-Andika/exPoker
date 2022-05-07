@@ -27,16 +27,6 @@ const app = angular.module('app', ['ngRoute']).config(function ($routeProvider, 
         controller: 'LobbyController'
     })
 
-    $routeProvider.when('/lobby', {
-        templateUrl: '/partials/lobby.html',
-        controller: 'LobbyController'
-    })
-
-    $routeProvider.when('/uid/:userId/pswd/:password', {
-        templateUrl: '/partials/lobby.html',
-        controller: 'LobbyController'
-    })
-
     // $routeProvider.otherwise({ redirectTo: '/' })
 
     $locationProvider.html5Mode(true).hashPrefix('!')
@@ -47,7 +37,5 @@ app.run(function ($rootScope) {
     $rootScope.password = ''
     $rootScope.totalChips = 0
     $rootScope.sittingOnTable = ''
-    console.log('DATA NAME APP', $rootScope.screenName);
-    console.log('DATA PASSWORD APP', $rootScope.password);
 })
 
