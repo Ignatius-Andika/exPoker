@@ -846,9 +846,10 @@ Table.prototype.stopGame = function () {
  * Method to settimeout folded
  */
 Table.prototype.timeoutFolded = function () {
-    this.timeoutFold = setTimeout(() => {
-        this.playerFolded()
-    }, 20000)
+    // this.timeoutFold = setTimeout(() => {
+    //     this.playerFolded()
+    // }, 20000)
+    return null
 }
 
 /**

@@ -79,7 +79,7 @@
 		<div class="chat-cell" style="margin-top: 0%;">
 			<div id="chat" ng-controller="ChatController">
 				<div id="messages"></div>
-				<form ng-submit="sendMessage()" style="margin-bottom: 0;">
+				<form ng-submit="sendMessage()" style="margin-bottom: 0% 0% 0% 2%;">
 					<input type="text" ng-model="messageText">
 					<input type="submit" value="↵">
 				</form>
@@ -98,13 +98,22 @@
 			<button class="control-button" ng-click="call()" ng-show="showCallButton()">Call {{callAmount()}}</button>
 		</div>
 		<div class="cell" style="margin-top: 2%;">
-			<button class="control-button" ng-click="bet()" ng-show="showBetButton()">Bet {{betAmount}}</button>
-			<button class="control-button" ng-click="raise()" ng-show="showRaiseButton()">Raise to {{betAmount}}</button>
+			<!-- <button class="control-button" ng-click="bet()" ng-show="showBetButton()">Bet {{betAmount}}</button>
+			<button class="control-button" ng-click="raise()" ng-show="showRaiseButton()">Raise to {{betAmount}}</button> -->
+			<button class="control-button" ng-click="allIn()" ng-show="showBetInput()">All In {{table.seats[$scope.mySeat].chipsInPlay}}</button>
 		</div>
-		<div class="double-cell" style="margin-top: 2%;">
+		<div class="double-cell" style="margin-top: 1%;">
 			<div class="cell-content">
-				<input type="range" ng-show="showBetRange()" min="{{minBetAmount()}}" max="{{maxBetAmount()}}" ng-model="betAmount">
-				<input type="number" id="bet-input" ng-show="showBetInput()" min="{{minBetAmount()}}" max="{{maxBetAmount()}}" ng-model="betAmount" value="{{betAmount}}">
+				<!-- <input type="range" ng-show="showBetRange()" min="{{minBetAmount()}}" max="{{maxBetAmount()}}" ng-model="betAmount"> -->
+				<!-- <input type="number" id="bet-input" ng-show="showBetInput()" min="{{minBetAmount()}}" max="{{maxBetAmount()}}" ng-model="betAmount" value="{{betAmount}}"> -->
+				<div class="number"  ng-show="showBetInput()" ng-model="betAmount">
+					<button class="minus btn-min" ng-click="minBet()">-</button>
+					<!-- <input class="raise" type="text" value="{{betAmount}}"/> -->
+					<label class="raise">{{betAmount}}</label>
+					<button class="plus btn-plus" ng-click="plusBet()">+</button>
+				</div>
+				<button style="width: 100%; height: 50%; margin: 2% 0 0 0;" class="control-button" ng-click="raise()" ng-show="showRaiseButton()">Raise to {{betAmount}}</button>
+				<button class="control-button" ng-click="bet()" ng-show="showBetButton()">Bet {{betAmount}}</button>
 			</div>
 		</div>
 	</div>

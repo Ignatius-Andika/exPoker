@@ -3,8 +3,8 @@
  * The table controller. It keeps track of the data on the interface,
  * depending on the replies from the server.
  */
-app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParams', '$timeout', 'sounds',
-    function ($scope, $rootScope, $http, $routeParams, $timeout, sounds) {
+app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParams', '$timeout', 'sounds', '$location',
+    function ($scope, $rootScope, $http, $routeParams, $timeout, sounds, $location) {
         const seat = null
         $scope.table = {}
         $scope.notifications = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
@@ -17,7 +17,25 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
         $rootScope.sittingOnTable = null
         const showingNotification = false
 
+        //
+        var parValues = $location.search();
+        var uid = parValues.uid
+        var pswd = parValues.pswd
+        // var mainUrl = $location.url()
+        var mainUrl = `?uid=${uid}&pswd=${pswd}`
+        mainUrl = mainUrl.toString()
+        // $scope.mainUrl = mainUrl
+        // uid = decodeURIComponent(atob(uid))
+        // pswd = decodeURIComponent(atob(pswd))
+    
+        console.log('PARAMETER VALUES TABLE', parValues);
+        console.log('PARAMETER VALUES TABLE UID = ', uid);
+        console.log('PARAMETER VALUES TABLE PSWD = ', pswd);
+        console.log('URL PARAMETER = ', mainUrl);
+        // 
+
         // Existing listeners should be removed
+        
         socket.removeAllListeners()
 
         // Getting the table data
@@ -37,11 +55,74 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
         // Joining the socket room
         socket.emit('enterRoom', $routeParams.tableId)
 
+        // 
+        // $scope.allIn = $scope.table.seats[$scope.mySeat].chipsInPlay + $scope.table.seats[$scope.mySeat].bet
+        // console.log('VALUE ALL IN BET = ', $scope.table.seats[$scope.mySeat].chipsInPlay);
+
+        $scope.minBet=function(){
+            // if ($scope.mySeat === null || typeof $scope.table.seats[$scope.mySeat] === 'undefined' || $scope.table.seats[$scope.mySeat] === null) return 0
+            // // If the pot was raised
+            // if ($scope.actionState === 'actBettedPot') {
+            //     var input = $scope.table.biggestBet
+            //     var count = input - 5;
+            //     count = count < 0 ? 0 : count;
+            //     // input.val(count);
+            //     // input.change();
+            //     // return false;
+            //     const proposedBet = count + $scope.table.bigBlind
+            //     return $scope.table.seats[$scope.mySeat].chipsInPlay < proposedBet ? $scope.table.seats[$scope.mySeat].chipsInPlay : proposedBet
+            // } else {
+            //     return $scope.table.seats[$scope.mySeat].chipsInPlay < $scope.table.bigBlind ? $scope.table.seats[$scope.mySeat].chipsInPlay : $scope.table.bigBlind
+            // }
+            socket.emit('raise', $scope.betAmount, function (response) {
+                if (response.success) {
+                    sounds.playRaiseSound()
+                    $scope.actionState = ''
+                    $scope.$digest()
+                }
+            })
+        }
+
+        $scope.plusBet=function(){
+            if ($scope.mySeat === null || typeof $scope.table.seats[$scope.mySeat] === 'undefined' || $scope.table.seats[$scope.mySeat] === null) return 0
+            // If the pot was raised
+            if ($scope.actionState === 'actBettedPot') {
+                var input = $scope.table.biggestBet
+                var count = input + 5;
+                count = count < 0 ? 0 : count;
+                // input.val(count);
+                // input.change();
+                // return false;
+                const proposedBet = count + $scope.table.bigBlind
+                return $scope.table.seats[$scope.mySeat].chipsInPlay < proposedBet ? $scope.table.seats[$scope.mySeat].chipsInPlay : proposedBet
+            } else {
+                return $scope.table.seats[$scope.mySeat].chipsInPlay < $scope.table.bigBlind ? $scope.table.seats[$scope.mySeat].chipsInPlay : $scope.table.bigBlind
+            }
+        }
+        
+        // $('.minus').click(function () {
+        //     var $input = $(this).parent().find('input');
+        //     var count = parseInt($input.val()) - 5;
+        //     count = count < 0 ? 0 : count;
+        //     $input.val(count);
+        //     $input.change();
+        //     return false;
+        // });
+        // $('.plus').click(function () {
+        //     var $input = $(this).parent().find('input');
+        //     $input.val(parseInt($input.val()) + 5);
+        //     $input.change();
+        //     return false;
+        // });
+        // 
+
         $scope.minBetAmount = function () {
             if ($scope.mySeat === null || typeof $scope.table.seats[$scope.mySeat] === 'undefined' || $scope.table.seats[$scope.mySeat] === null) return 0
             // If the pot was raised
             if ($scope.actionState === 'actBettedPot') {
                 const proposedBet = +$scope.table.biggestBet + $scope.table.bigBlind
+                console.log('MIN BET AMOUNT PROPOSED = ', proposedBet);
+                console.log('BIGGEST BET = '+$scope.table.biggestBet );
                 return $scope.table.seats[$scope.mySeat].chipsInPlay < proposedBet ? $scope.table.seats[$scope.mySeat].chipsInPlay : proposedBet
             } else {
                 return $scope.table.seats[$scope.mySeat].chipsInPlay < $scope.table.bigBlind ? $scope.table.seats[$scope.mySeat].chipsInPlay : $scope.table.bigBlind
@@ -50,7 +131,10 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
 
         $scope.maxBetAmount = function () {
             if ($scope.mySeat === null || typeof $scope.table.seats[$scope.mySeat] === 'undefined' || $scope.table.seats[$scope.mySeat] === null) return 0
-            return $scope.actionState === 'actBettedPot' ? $scope.table.seats[$scope.mySeat].chipsInPlay + $scope.table.seats[$scope.mySeat].bet : $scope.table.seats[$scope.mySeat].chipsInPlay
+            var maxbet = $scope.table.seats[$scope.mySeat].chipsInPlay + $scope.table.seats[$scope.mySeat].bet 
+            console.log('MAX BET AMOUNT = ', maxbet);
+            console.log('MY SEAT BEAT = ', $scope.table.seats[$scope.mySeat].bet  );
+            return $scope.actionState === 'actBettedPot' ? $scope.table.seats[$scope.mySeat].chipsInPlay + $scope.table.seats[$scope.mySeat].bet  :  $scope.table.seats[$scope.mySeat].chipsInPlay
         }
 
         $scope.callAmount = function () {
@@ -92,7 +176,12 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
         }
 
         $scope.showBetRange = function () {
-            return ($scope.actionState === 'actNotBettedPot' || $scope.actionState === 'actBettedPot') && $scope.table.seats[$scope.mySeat].chipsInPlay && $scope.table.biggestBet < $scope.table.seats[$scope.mySeat].chipsInPlay
+            var allIn = $scope.table.seats[$scope.mySeat].chipsInPlay
+            return (
+                $scope.actionState === 'actNotBettedPot' || 
+                $scope.actionState === 'actBettedPot') && 
+                $scope.table.seats[$scope.mySeat].chipsInPlay && 
+                $scope.table.biggestBet < $scope.table.seats[$scope.mySeat].chipsInPlay
         }
 
         $scope.showBetInput = function () {
