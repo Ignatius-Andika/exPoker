@@ -16,7 +16,7 @@
 	<div id="table">
 		<div class="row" style="margin-top: 5%;">
 			<div class="cell">
-				<a id="to-lobby" class="button" href="javascript:javascript:history.go(-1)" ng-show="!$root.sittingOnTable" ng-click="leaveRoom()">< Lobby</a>
+				<a id="to-lobby" class="button" href="javascript:javascript:history.back()" ng-show="!$root.sittingOnTable" ng-click="leaveRoom()">< Lobby</a>
 			</div>
 			<div class="cell">
 				<seat player="table.seats[0]" active-seat="table.activeSeat" dealer-seat="table.dealerSeat" my-seat="mySeat" my-cards="myCards" sitting-on-table="$root.sittingOnTable" show-buy-in-modal="showBuyInModal(seat)" notifications="notifications" seat-index="0" cell-number="0" class="top left" style="margin-left: -15% !important;"></seat>

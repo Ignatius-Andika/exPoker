@@ -2,13 +2,16 @@ const socket = io.connect(
     'http://127.0.0.1:8000/',
     {
         // transports: ["websocket"], 
-        // upgrade: false, 
+        // allowUpgrades: false,
         // pingTimeout: 1800000, 
-        // pingInterval: 1800000
-        "sid": "FSDjX-WRwSA4zTZMALqx",
-        "upgrades": ["websocket"],
-        "pingInterval": '1800000',
-        "pingTimeout": '1800000'
+        // pingInterval: 1800000,
+        // "sid": "FSDjX-WRwSA4zTZMALqx",
+        "transports": ["websocket"], 
+        "allowUpgrades": "false",
+        "upgrades": ["false"],
+        // "upgrades": ["websocket"],
+        "pingInterval": "1800000",
+        "pingTimeout": "1800000"
     }
     );
 

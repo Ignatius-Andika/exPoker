@@ -45,18 +45,17 @@ app.controller('LobbyController', ['$scope', '$rootScope', '$http', '$location',
     $scope.mainUrl = mainUrl
     uid = decodeURIComponent(atob(uid))
     pswd = decodeURIComponent(atob(pswd))
-    var reqMember = `/data/api/memberpoker/${uid}/${pswd}`
+    // var reqMember = `/data/api/memberpoker/${uid}/${pswd}`
 
-    console.log('PARAMETER VALUES', parValues);
-    console.log('PARAMETER VALUES UID = ', uid);
-    console.log('PARAMETER VALUES PSWD = ', pswd);
-    console.log('URL PARAMETER = ', mainUrl);
+    // console.log('PARAMETER VALUES', parValues);
+    // console.log('PARAMETER VALUES UID = ', uid);
+    // console.log('PARAMETER VALUES PSWD = ', pswd);
+    // console.log('URL PARAMETER = ', mainUrl);
 
     var table = $scope.lobbyTables
-    console.log('LOBBY TABLES = ', table);
+    // console.log('LOBBY TABLES = ', table);
 
     if (uid && pswd) {
-        console.log('UID DAN PSWD MASUK!!');
 
         // $http({
         //     url: reqMember,
@@ -88,9 +87,6 @@ app.controller('LobbyController', ['$scope', '$rootScope', '$http', '$location',
                 $scope.registerError = response.message
             }
             $scope.$digest()
-            console.log('RESPONSE PLAYER', response);
-            console.log('DATA ROOTSCOPE VALUE = ', $rootScope);
-            console.log('DATA SCOPE VALUE = ', $scope);
         })   
         } catch (error) {
          console.log('SOCKET EMIT REGISTER ERROR', error);   

@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
 // const io = require('socket.io').listen(server)
-const io = require('socket.io')({pingTimeout: 1800000, pingInterval: 1800000}).listen(server)
+const io = require('socket.io')({pingTimeout: "1800000", pingInterval: "1800000"}).listen(server)
 const lessMiddleware = require('less-middleware')
 const path = require('path')
 const Table = require('./poker_modules/table')
@@ -210,7 +210,7 @@ app.get('/table-data/:tableId', function (req, res) {
       // res.write(JSON.stringify(player))
       // res.write({ table: tables[req.params.tableId].public })
       res.send({ table: tables[req.params.tableId].public })
-      console.log('FUNGSI TABLE DATA', { table: tables[req.params.tableId].public }, {player: player}, pemain,  req.params.tableId);
+      // console.log('FUNGSI TABLE DATA', { table: tables[req.params.tableId].public }, {player: player}, pemain,  req.params.tableId);
       // console.log('DATA COOKIE', cookie);
 
 
@@ -248,7 +248,7 @@ io.sockets.on('connection', function (socket) {
   /**
    * When a player leaves a room
    */
-  socket.on('leaveRoom', function () {
+  socket.on('leaveRoom', function (callback) {
     if (typeof players[socket.id] !== 'undefined' && players[socket.id].room !== null && players[socket.id].sittingOnTable === false) {
       // Remove the player from the socket room
       socket.leave('table-' + players[socket.id].room)
@@ -256,11 +256,12 @@ io.sockets.on('connection', function (socket) {
       players[socket.id].room = null
       
       // 
-      // const id = players[socket.id].public.id
-      // const balance = players[socket.id].chips
-      // request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balance}, callback)
-      // console.log('PLAYER ID', id);
-      // console.log('PLAYER BALANCE', balance);
+      const id = players[socket.id].public.id
+      const balance = players[socket.id].chips
+      const balancePlay = players[socket.id].public.chipsInPlay
+      const balanceAmount = balance + balancePlay
+      console.log(`ID : ${id}; BALANCE : ${balance}; CHIPS IN PLAY: ${balancePlay}; BALANCE AMOUNT: ${balanceAmount}`);
+      request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
       // 
     }
   })
@@ -268,7 +269,20 @@ io.sockets.on('connection', function (socket) {
   /**
    * When a player disconnects
    */
-  socket.on('disconnect', function () {
+  socket.on('disconnect', function (callback) {
+    // 
+    const id = players[socket.id].public.id
+    const balance = players[socket.id].chips
+    const balancePlay = players[socket.id].public.chipsInPlay
+    const balanceAmount = balance + balancePlay
+    console.log(`ID : ${id}; BALANCE : ${balance}; CHIPS IN PLAY: ${balancePlay}; BALANCE AMOUNT: ${balanceAmount}`);
+    request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
+    console.log('PLAYER ID: ', id);
+    console.log('PLAYER BALANCE: ', balance);
+    console.log('CHIPS IN PLAY: ', balancePlay );
+    console.log('BALANCE AMOUNT: ', balanceAmount);
+    // 
+
     // If the socket points to a player object
     if (typeof players[socket.id] !== 'undefined') {
       // If the player was sitting on a table
@@ -283,15 +297,9 @@ io.sockets.on('connection', function (socket) {
       // Remove the player object from the players array
       delete players[socket.id]
       console.log('Client Disconnected');
-      console.log('SOCKET ID DISCONNECT', socket.id);
+      console.log('SOCKET ID DISCONNECT: ', socket.id);
       console.log('Socket Connection: ', socket.connected);
-      // 
-      // const id = players[socket.id].public.id
-      // const balance = players[socket.id].chips
-      // request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balance}, callback)
-      // console.log('PLAYER ID', id);
-      // console.log('PLAYER BALANCE', balance);
-      // 
+      console.log('DISSCONNECT REASON: ', callback);
     }
   })
 
@@ -311,18 +319,21 @@ io.sockets.on('connection', function (socket) {
       // Send the number of total chips back to the user
       callback({ success: true, totalChips: players[socket.id].chips })
 
+      // 
       for(i in tables){
         var table = tables[i]
       }
       console.log('SEAT = ', seat);
       console.log('SITTING ON TABLE = ', tableId);
-      console.log('DATA TABLE AFTER LEAVE TABLE', table);
+      // console.log('DATA TABLE AFTER LEAVE TABLE', table);
 
       const id = players[socket.id].public.id
       const balance = players[socket.id].chips
-      request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balance}, callback)
-      console.log('PLAYER ID', id);
-      console.log('PLAYER BALANCE', balance);
+      const balancePlay = players[socket.id].public.chipsInPlay
+      const balanceAmount = balance + balancePlay
+      console.log(`ID : ${id}; BALANCE : ${balance}; CHIPS IN PLAY: ${balancePlay}; BALANCE AMOUNT: ${balanceAmount}`);
+      request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
+      // 
     }
   })
 
@@ -397,17 +408,7 @@ io.sockets.on('connection', function (socket) {
     console.log('SOCKET EMIT PSWD', pswd);
     // If a new screen name is posted
     if (uid !== 'undefined' && pswd !== 'undefined') {
-      // var newScreenName = uid.trim()
-      // var password = pswd.trim()
-      // var newScreenName = encodeURIComponent(uid)
-      // var password = encodeURIComponent(pswd)
-      // console.log('SOCKET EMIT UID & PSWD', newScreenName, password);
-      // var myurl = `${apiUrl}/memberpoker/${uid}/${pswd}`
-      // var res = encodeURI(myurl)
-      // console.log('ENCODE URL', res);
-      // var myurl = `${apiUrl}/memberpoker/${newScreenName}/${password}`
       var memberUrl = apiUrl+'/memberpoker/'+uid+'/'+ pswd
-      // var stringurl = myurl.toString()
       console.log('GET MEMBER URL = ', memberUrl);
       
 
@@ -415,10 +416,8 @@ io.sockets.on('connection', function (socket) {
       // request(`${apiUrl}/memberpoker/${uid}/${pswd}`, function (err, res, req) {
         if (err) {
           console.log('REQUEST PLAYER ERROR', err);
-          console.log('URL REQUEST = ', stringurl);
         } else {
           var member = JSON.parse(req);
-          // console.log('DATA MEMBER', member);
         }
 
 
@@ -637,6 +636,11 @@ io.sockets.on('connection', function (socket) {
    * @param function callback
    */
   socket.on('raise', function (amount, callback) {
+    // 
+    console.log('TURN RAISE');
+    var raised = 0
+    // 
+
     if (players[socket.id].sittingOnTable !== 'undefined') {
       const tableId = players[socket.id].sittingOnTable
       const activeSeat = tables[tableId].public.activeSeat
@@ -661,6 +665,11 @@ io.sockets.on('connection', function (socket) {
             callback({ success: true })
             // The amount should not include amounts previously betted
             tables[tableId].playerRaised(amount)
+            
+            // 
+            raised += 1
+            console.log('VALUE RAISED: ', raised);
+            // 
           }
         }
       }
@@ -711,18 +720,3 @@ request(`${apiUrl}/tablepoker`, function (err, res, req) {
     tables[id] = new Table(dt.TableID, dt.TableName, eventEmitter(id), dt.SeatsCount, dt.BigBlind, dt.SmallBlind, dt.Maxbuy, dt.MinBuy)
   }
 })
-
-// var memberUrl = apiUrl+'/memberpoker/'+uid+'/'+ pswd
-// console.log('REQUEST API MEMBER', memberUrl);
-
-// request(memberUrl, function (err, res, req) {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     var data = JSON.parse(req);
-//   }
-//   for (const id in data) {
-//     const dt = data[id]
-//     tables[id] = new Table(dt.TableID, dt.TableName, eventEmitter(id), dt.SeatsCount, dt.BigBlind, dt.SmallBlind, dt.Maxbuy, dt.MinBuy)
-//   }
-// })
