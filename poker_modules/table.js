@@ -1,6 +1,8 @@
 const Deck = require('./deck')
 const Pot = require('./pot')
 
+const request = require('request')
+
 /**
  * The table "class"
  * @param string	id (the table id)
@@ -72,10 +74,6 @@ const Table = function (id, name, eventEmitter, seatsCount, bigBlind, smallBlind
         }
     }
 
-    // 
-    this.raised = 0
-    // 
-
     // Initializing the empty seats
     for (let i = 0; i < this.public.seatsCount; i++) {
         this.seats[i] = null
@@ -100,10 +98,6 @@ Table.prototype.emitEvent = function (eventName, eventData) {
  * @return number|null
  */
 Table.prototype.findNextPlayer = function (offset, status) {
-    // 
-    // console.log('FIND NEXT PLAYER');
-    // 
-
     offset = typeof offset !== 'undefined' ? offset : this.public.activeSeat
     status = typeof status !== 'undefined' ? status : 'inHand'
     if (status instanceof Array) {
@@ -208,12 +202,9 @@ Table.prototype.findPreviousPlayer = function (offset, status) {
  * Method that starts a new game
  */
 Table.prototype.initializeRound = function (changeDealer) {
-    // 
-    console.log('INITIALIZE ROUND');
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
-    //
 
     changeDealer = typeof changeDealer === 'undefined' ? true : changeDealer
 
@@ -292,11 +283,9 @@ Table.prototype.initializeBigBlind = function () {
     // Set the table phase to 'bigBlind'
     this.public.phase = 'bigBlind'
 
-    // 
     if (this.public.phase === 'bigBlind') {
         this.timeoutBB()
     }
-    // 
 
     this.actionToNextPlayer()
 }
@@ -305,12 +294,9 @@ Table.prototype.initializeBigBlind = function () {
  * Method that starts the "preflop" round
  */
 Table.prototype.initializePreflop = function () {
-    // 
-    console.log('INITIALIZE PREFLOP');
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
-    // 
 
     // Set the table phase to 'preflop'
     this.public.phase = 'preflop'
@@ -385,62 +371,32 @@ Table.prototype.actionToNextPlayer = function () {
 
     switch (this.public.phase) {
         case 'smallBlind':
-            // 
-            // if (this.public.phase === 'smallBlind') {
-            //     this.timeoutSB()
-            // }
-            // 
             this.seats[this.public.activeSeat].socket.emit('postSmallBlind')
             break
         case 'bigBlind':
-            // 
-            // if (this.public.phase === 'bigBlind') {
-            //     this.timeoutBB()
-            // }
-            // 
             this.seats[this.public.activeSeat].socket.emit('postBigBlind')
             break
         case 'preflop':
-            if (this.otherPlayersAreAllIn()) {
-                this.seats[this.public.activeSeat].socket.emit('actOthersAllIn')
-            } else {
+            // if (this.otherPlayersAreAllIn()) {
+            //     this.seats[this.public.activeSeat].socket.emit('actOthersAllIn')
+            // } else {
                 this.seats[this.public.activeSeat].socket.emit('actBettedPot')
-            }
+            // }
 
             if (this.public.phase === 'preflop') {
                 this.timeoutFolded()
             }
             break
         case 'flop':
-            // if (this.otherPlayersAreAllIn()) {
-            //     this.seats[this.public.activeSeat].socket.emit('actOthersAllIn')
-            // } else {
-            //     this.seats[this.public.activeSeat].socket.emit('actBettedPot')
-            // }
-
-            // if (this.public.phase === 'flop') {
-            //     this.timeoutFolded()
-            // }
-            // break
         case 'turn':
-            // if (this.otherPlayersAreAllIn()) {
-            //     this.seats[this.public.activeSeat].socket.emit('actOthersAllIn')
-            // } else {
-            //     this.seats[this.public.activeSeat].socket.emit('actBettedPot')
-            // }
-
-            // if (this.public.phase === 'turn') {
-            //     this.timeoutFolded()
-            // }
-            // break
         case 'river':
             // If someone has betted
             if (this.public.biggestBet) {
-                if (this.otherPlayersAreAllIn()) {
-                    this.seats[this.public.activeSeat].socket.emit('actOthersAllIn')
-                } else {
+                // if (this.otherPlayersAreAllIn()) {
+                //     this.seats[this.public.activeSeat].socket.emit('actOthersAllIn')
+                // } else {
                     this.seats[this.public.activeSeat].socket.emit('actBettedPot')
-                }
+                // }
             } else {
                 this.seats[this.public.activeSeat].socket.emit('actNotBettedPot')
             }
@@ -496,10 +452,7 @@ Table.prototype.showdown = function () {
  * Ends the current phase of the round
  */
 Table.prototype.endPhase = function () {
-    // 
-    console.log('END PHASE');
     this.stopTimeoutFolded()
-    // 
     switch (this.public.phase) {
         case 'preflop':
         case 'flop':
@@ -527,9 +480,7 @@ Table.prototype.playerPostedSmallBlind = function () {
     })
     this.public.biggestBet = this.public.biggestBet < bet ? bet : this.public.biggestBet
     this.emitEvent('table-data', this.public)
-    // 
     this.stopTimeoutSB()
-    // 
     this.initializeBigBlind()
 }
 
@@ -548,9 +499,7 @@ Table.prototype.playerPostedBigBlind = function () {
     })
     this.public.biggestBet = this.public.biggestBet < bet ? bet : this.public.biggestBet
     this.emitEvent('table-data', this.public)
-    // 
     this.stopTimeoutBB()
-    // 
     this.initializePreflop()
 }
 
@@ -617,7 +566,8 @@ Table.prototype.playerCalled = function () {
         notification: 'Call'
     })
     this.emitEvent('table-data', this.public)
-    if (this.lastPlayerToAct === this.public.activeSeat || this.otherPlayersAreAllIn()) {
+    if (this.lastPlayerToAct === this.public.activeSeat){
+        //  || this.otherPlayersAreAllIn()) {
         this.endPhase()
     } else {
         this.actionToNextPlayer()
@@ -652,11 +602,6 @@ Table.prototype.playerBetted = function (amount) {
  * When a player raises
  */
 Table.prototype.playerRaised = function (amount) {
-    // 
-    this.raised += 1
-    console.log('PLAYER RAISED : ', this.raised);
-    // 
-
     this.stopTimeoutFolded()
     this.seats[this.public.activeSeat].raise(amount)
     const oldBiggestBet = this.public.biggestBet
@@ -726,12 +671,10 @@ Table.prototype.playerSatIn = function (seat) {
  * @param int seat
  */
 Table.prototype.playerLeft = function (seat) {
-    // 
-    console.log('PLAYER LEFT');
+    console.log('PLAYER LEFT: ' + this.seats[seat].public.name);
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
-    // 
 
     this.log({
         message: this.seats[seat].public.name + ' left',
@@ -780,12 +723,10 @@ Table.prototype.playerLeft = function (seat) {
  * @param bool 	playerLeft		(flag that shows that the player actually left the table)
  */
 Table.prototype.playerSatOut = function (seat, playerLeft) {
-    // 
-    console.log('PLAYER SAT OUT');
+    console.log('PLAYER SAT OUT: ' + this.seats[seat]);
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
-    // 
 
     // Set the playerLeft parameter to false if it's not specified
     if (typeof playerLeft === 'undefined') {
@@ -838,6 +779,9 @@ Table.prototype.playerSatOut = function (seat, playerLeft) {
         }
     } else {
         this.seats[seat].sitOut()
+        // 
+        this.playerLeft()
+        // 
     }
     this.emitEvent('table-data', this.public)
 }
@@ -852,7 +796,6 @@ Table.prototype.otherPlayersAreAllIn = function () {
         }
         currentPlayer = this.findNextPlayer(currentPlayer)
     }
-
     // In this case, all the players are all in. There should be no actions. Move to the next round.
     return playersAllIn >= this.playersInHandCount - 1
 }
@@ -875,12 +818,41 @@ Table.prototype.removeAllCardsFromPlay = function () {
  * Actions that should be taken when the round has ended
  */
 Table.prototype.endRound = function () {
-    // 
+    var apiUrl = 'http://mypoker.com/data/api'
+    for (i in this.seats) {
+        // var dataSeats = this.seats[i].public
+        var seats = this.seats[i]
+        if (seats != null) {
+            // console.log('DATA PLAYER SEATS END ROUND: ', seats);
+            
+            const id = seats.public.id
+            const balance = seats.chips
+            const balancePlay = seats.public.chipsInPlay
+            const balanceAmount = balance + balancePlay
+            console.log('DATA PLAYER SEATS END ROUND');
+            console.log(`ID : ${id}; BALANCE : ${balance}; CHIPS IN PLAY: ${balancePlay}; BALANCE AMOUNT: ${balanceAmount}`);
+            try {
+                request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount})   
+            } catch (error) {
+                console.log('ERROR UPDATE DATA: ', error);
+            }
+        }
+        // console.log('DATA PLAYER SEATS END ROUND: ', seats);
+        // console.log('DATA PLAYER SEATS END ROUND: ', dataSeats);
+    }
+    for (i in this.public.seats) {
+        var pseats = this.public.seats[i]
+        if (pseats != null) {
+            console.log('DATA PLAYER END ROUND: ', pseats);
+        }
+        if (pseats != null && pseats.chipsInPlay <= 0) {
+            console.log('CHIPS HABIS: ', pseats);
+        }
+    }
     console.log('END ROUND');
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
-    // 
 
     // If there were any bets, they are added to the pot
     this.pot.addTableBets(this.seats)
@@ -892,8 +864,11 @@ Table.prototype.endRound = function () {
     // Sitting out the players who don't have chips
     for (i = 0; i < this.public.seatsCount; i++) {
         if (this.seats[i] !== null && this.seats[i].public.chipsInPlay <= 0 && this.seats[i].public.sittingIn) {
+            console.log('SITTING OUT ENDROUND: ', this.public.seats[i]);
             this.seats[i].sitOut()
             this.playersSittingInCount--
+
+            console.log('PLAYER SITTING OUT COUNT ENDROUND: ', this.playersSittingInCount);
         }
     }
 
@@ -909,12 +884,10 @@ Table.prototype.endRound = function () {
  * Method that stops the game
  */
 Table.prototype.stopGame = function () {
-    // 
     console.log('STOP GAME');
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
-    // 
 
     this.public.phase = null
     this.pot.reset()
@@ -934,17 +907,14 @@ Table.prototype.timeoutFolded = function () {
     this.timeoutFold = setTimeout(() => {
         this.playerFolded()
         this.stopTimeoutFolded()
-        // console.log('TIMEOUT FOLDED EXECUTE');
     }, 20000)
     
 }
 
-// 
 Table.prototype.timeoutSB = function () {
     this.timeoutSmallB = setTimeout(() => {
         this.playerPostedSmallBlind()
         this.stopTimeoutSB()
-        // console.log('TIMEOUT SMALL BLIND EXECUTE');
     }, 20000)
 }
 
@@ -952,27 +922,22 @@ Table.prototype.timeoutBB = function () {
     this.timeoutBigB = setTimeout(() => {
         this.playerPostedBigBlind()
         this.stopTimeoutBB()
-        // console.log('TIMEOUT BIG BLIND EXECUTE');
     }, 20000)
 }
 
 Table.prototype.stopTimeoutSB = function () {
     clearTimeout(this.timeoutSmallB)
-    // console.log('CLEAR TIMEOUT SMALL BLIND');
 }
 
 Table.prototype.stopTimeoutBB = function () {
     clearTimeout(this.timeoutBigB)
-    // console.log('CLEAR TIMEOUT BIG BLIND');
-}
-// 
+} 
 
 /**
  * Method to stops timeout folded
  */
 Table.prototype.stopTimeoutFolded = function () {
     clearTimeout(this.timeoutFold)
-    // console.log('CLEAR TIMEOUT FOLDED');
 }
 
 /**
@@ -982,13 +947,5 @@ Table.prototype.log = function (log) {
     this.public.log = null
     this.public.log = log
 }
-
-// 
-eventEmitter = function (tableId) {
-    return function (eventName, eventData) {
-        io.sockets.in('table-' + tableId).emit(eventName, eventData)
-    }
-}
-// 
 
 module.exports = Table

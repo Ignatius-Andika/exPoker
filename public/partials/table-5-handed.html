@@ -72,6 +72,49 @@
 		</div>
 	</div>
 	<div class="row controls">
+		<div class="chat-cell" style="margin-top: 0%;">
+			<div id="chat" ng-controller="ChatController">
+				<div id="messages"></div>
+				<form ng-submit="sendMessage()" style="margin: 0% 0% 0% 2%;">
+					<input type="text" ng-model="messageText">
+					<input type="submit" value="↵">
+				</form>
+			</div>
+		</div>
+		<div class="cell" style="margin-top: 2%;">
+			<button class="control-button" ng-click="fold()" ng-show="showFoldButton()">Fold</button>
+			<button class="control-button" ng-click="leaveTable()" ng-show="showLeaveTableButton()">Leave Table</button>
+			<button class="control-button" ng-click="postBlind(false); leaveTable()" ng-show="actionState === 'postSmallBlind' || actionState === 'postBigBlind'">Leave Table</button>
+		</div>
+		<div class="cell" style="margin-top: 2%;">
+			<button class="control-button" ng-click="sitIn()" ng-show="$root.sittingOnTable !== null && !$root.sittingIn">Sit In</button>
+			<button class="control-button" ng-click="postBlind(true)" ng-show="actionState === 'postSmallBlind'">Small Blind ({{table.smallBlind}})</button>
+			<button class="control-button" ng-click="postBlind(true)" ng-show="actionState === 'postBigBlind'">Big Blind ({{table.bigBlind}})</button>
+			<button class="control-button" ng-click="check()" ng-show="showCheckButton()">Check</button>
+			<button class="control-button" ng-click="call()" ng-show="showCallButton()">Call {{callAmount()}}</button>
+			<button class="control-button" ng-click="call()" ng-show="showAllinButton()">All In {{callAmount()}}</button>
+		</div>
+		<div class="cell" style="margin-top: 2%;">
+			<button class="control-button" ng-click="allIn()" ng-show="showAllIn()">All In {{allInAmount()}}</button>
+		</div>
+		<div class="double-cell" style="margin-top: 1%;">
+			<div class="cell-content">
+				<div class="number"  ng-show="showRaiseButton()" ng-model="betAmount">
+					<button class="minus btn-min" ng-click="minBet()">-</button>
+					<label class="raise">{{betAmount}}</label>
+					<button class="plus btn-plus" ng-click="plusBet()">+</button>
+				</div>
+				<div class="number"  ng-show="showBetButton()" ng-model="betAmount">
+					<button class="minus btn-min" ng-click="minBet()">-</button>
+					<label class="raise">{{betAmount}}</label>
+					<button class="plus btn-plus" ng-click="plusBet()">+</button>
+				</div>
+				<button style="width: 100%; height: 50%; margin: 2% 0 0 0;" class="control-button" ng-click="raise()" ng-show="showRaiseButton()">Raise to {{betAmount}}</button>
+				<button style="width: 100%; height: 50%; margin: 2% 0 0 0;" class="control-button" ng-click="bet()" ng-show="showBetButton()">Bet {{betAmount}}</button>
+			</div>
+		</div>
+	</div>
+	<!-- <div class="row controls">
 		<div class="chat-cell">
 			<div id="chat" ng-controller="ChatController">
 				<div id="messages"></div>
@@ -103,7 +146,7 @@
 				<input type="number" id="bet-input" ng-show="showBetInput()" min="{{minBetAmount()}}" max="{{maxBetAmount()}}" ng-model="betAmount" value="{{betAmount}}">
 			</div>
 		</div>
-	</div>
+	</div> -->
 	<div id="audio">
 		<audio id="fold-sound" src="/audio/fold.wav" preload="auto">
 		<audio id="check-sound" src="/audio/check.wav" preload="auto">
