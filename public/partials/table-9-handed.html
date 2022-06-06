@@ -87,7 +87,6 @@
 		</div>
 		<div class="cell" style="margin-top: 2%;">
 			<button class="control-button" ng-click="fold()" ng-show="showFoldButton()">Fold</button>
-			<!-- <button class="control-button" ng-click="postBlind(false)" ng-show="actionState === 'postSmallBlind' || actionState === 'postBigBlind'">Sit Out</button> -->
 			<button class="control-button" ng-click="leaveTable()" ng-show="showLeaveTableButton()">Leave Table</button>
 			<button class="control-button" ng-click="postBlind(false); leaveTable()" ng-show="actionState === 'postSmallBlind' || actionState === 'postBigBlind'">Leave Table</button>
 		</div>
@@ -100,19 +99,10 @@
 			<button class="control-button" ng-click="call()" ng-show="showAllinButton()">All In {{callAmount()}}</button>
 		</div>
 		<div class="cell" style="margin-top: 2%;">
-			<!-- <button class="control-button" ng-click="bet()" ng-show="showBetButton()">Bet {{betAmount}}</button>
-			<button class="control-button" ng-click="raise()" ng-show="showRaiseButton()">Raise to {{betAmount}}</button> -->
 			<button class="control-button" ng-click="allIn()" ng-show="showAllIn()">All In {{allInAmount()}}</button>
 		</div>
 		<div class="double-cell" style="margin-top: 1%;">
 			<div class="cell-content">
-				<!-- <input type="range" ng-show="showBetRange()" min="{{minBetAmount()}}" max="{{maxBetAmount()}}" ng-model="betAmount"> -->
-				<!-- <input type="number" id="bet-input" ng-show="showBetInput()" min="{{minBetAmount()}}" max="{{maxBetAmount()}}" ng-model="betAmount" value="{{betAmount}}"> -->
-				<!-- <div class="number"  ng-show="showBetInput()" ng-model="betAmount">
-					<button class="minus btn-min" ng-click="minBet()">-</button>
-					<label class="raise">{{betAmount}}</label>
-					<button class="plus btn-plus" ng-click="plusBet()">+</button>
-				</div> -->
 				<div class="number"  ng-show="showRaiseButton()" ng-model="betAmount">
 					<button class="minus btn-min" ng-click="minBet()">-</button>
 					<label class="raise">{{betAmount}}</label>

@@ -2,7 +2,20 @@ const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
 // const io = require('socket.io').listen(server)
-const io = require('socket.io')({pingTimeout: "1800000", pingInterval: "1800000"}).listen(server)
+const io = require('socket.io',
+  {
+    rememberTransport: false, 
+    transports: 
+    [
+      'websocket', 
+      'flashsocket', 
+      'polling'
+    ], 
+    wsEngine: 'ws', 
+    pingTimeout: '1800000', 
+    pingInterval: '1800000'
+  }
+).listen(server)
 const lessMiddleware = require('less-middleware')
 const path = require('path')
 const Table = require('./poker_modules/table')
@@ -183,7 +196,6 @@ io.sockets.on('connection', function (socket) {
       const balance = players[socket.id].chips
       const balancePlay = players[socket.id].public.chipsInPlay
       const balanceAmount = balance + balancePlay
-      console.log(`ID : ${id}; BALANCE : ${balance}; CHIPS IN PLAY: ${balancePlay}; BALANCE AMOUNT: ${balanceAmount}`);
       request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
     }
   })
@@ -196,7 +208,6 @@ io.sockets.on('connection', function (socket) {
     const balance = players[socket.id].chips
     const balancePlay = players[socket.id].public.chipsInPlay
     const balanceAmount = balance + balancePlay
-    console.log(`ID : ${id}; BALANCE : ${balance}; CHIPS IN PLAY: ${balancePlay}; BALANCE AMOUNT: ${balanceAmount}`);
     request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
 
     // If the socket points to a player object
@@ -239,7 +250,6 @@ io.sockets.on('connection', function (socket) {
       const balance = players[socket.id].chips
       const balancePlay = players[socket.id].public.chipsInPlay
       const balanceAmount = balance + balancePlay
-      console.log(`ID : ${id}; BALANCE : ${balance}; CHIPS IN PLAY: ${balancePlay}; BALANCE AMOUNT: ${balanceAmount}`);
       request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
     }
   })

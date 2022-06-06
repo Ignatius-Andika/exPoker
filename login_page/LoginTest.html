@@ -73,132 +73,17 @@
   }
 </style>
 <script>
-  function encode(input) {
-     input = escape(input);
-     var output = "";
-     var chr1, chr2, chr3 = "";
-     var enc1, enc2, enc3, enc4 = "";
-     var i = 0;
-
-     do {
-        chr1 = input.charCodeAt(i++);
-        chr2 = input.charCodeAt(i++);
-        chr3 = input.charCodeAt(i++);
-
-        enc1 = chr1 >> 2;
-        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-        enc4 = chr3 & 63;
-
-        if (isNaN(chr2)) {
-           enc3 = enc4 = 64;
-        } else if (isNaN(chr3)) {
-           enc4 = 64;
-        }
-
-        output = output +
-           keyStr.charAt(enc1) +
-           keyStr.charAt(enc2) +
-           keyStr.charAt(enc3) +
-           keyStr.charAt(enc4);
-        chr1 = chr2 = chr3 = "";
-        enc1 = enc2 = enc3 = enc4 = "";
-     } while (i < input.length);
-
-     return output;
-  }
-
   function login(){
-
-  // var keyStr = "ABCDEFGHIJKLMNOP" +
-  //             "QRSTUVWXYZabcdef" +
-  //             "ghijklmnopqrstuv" +
-  //             "wxyz0123456789+/" ;
-
-  // /* ENCRYPT USERID */
-  // var inuser =  document.getElementById("userid").value;
-  // var outuser = "";
-  // var u_chr1, u_chr2, u_chr3 = "";
-  // var u_enc1, u_enc2, u_enc3, u_enc4 = "";
-  // var i = 0;
-
-  // do {
-  //   u_chr1 = inuser.charCodeAt(i++);
-  //   u_chr2 = inuser.charCodeAt(i++);
-  //   u_chr3 = inuser.charCodeAt(i++);
-
-  //   u_enc1 = u_chr1 >> 2;
-  //   u_enc2 = ((u_chr1 & 3) << 4) | (u_chr2 >> 4);
-  //   u_enc3 = ((u_chr2 & 15) << 2) | (u_chr3 >> 6);
-  //   u_enc4 = u_chr3 & 63;
-
-  //   if (isNaN(u_chr2)) {
-  //       u_enc3 = u_enc4 = 64;
-  //   } else if (isNaN(u_chr3)) {
-  //       u_enc4 = 64;
-  //   }
-
-  //   outuser = outuser +
-  //       keyStr.charAt(u_enc1) +
-  //       keyStr.charAt(u_enc2) +
-  //       keyStr.charAt(u_enc3) +
-  //       keyStr.charAt(u_enc4);
-  //   u_chr1 = u_chr2 = u_chr3 = "";
-  //   u_enc1 = u_enc2 = u_enc3 = u_enc4 = "";
-  // } while (i < inuser.length);
-  // // 
-
-  
-  // /* ENCRYPT PASSWORD */
-  // var inpass =  document.getElementById("password").value;
-  // var outpass = "";
-  // var p_chr1, p_chr2, p_chr3 = "";
-  // var p_enc1, p_enc2, p_enc3, p_enc4 = "";
-  // var i = 0;
-
-  // do {
-  //   p_chr1 = inpass.charCodeAt(i++);
-  //   p_chr2 = inpass.charCodeAt(i++);
-  //   p_chr3 = inpass.charCodeAt(i++);
-
-  //   p_enc1 = p_chr1 >> 2;
-  //   p_enc2 = ((p_chr1 & 3) << 4) | (p_chr2 >> 4);
-  //   p_enc3 = ((p_chr2 & 15) << 2) | (p_chr3 >> 6);
-  //   p_enc4 = p_chr3 & 63;
-
-  //   if (isNaN(p_chr2)) {
-  //       p_enc3 = p_enc4 = 64;
-  //   } else if (isNaN(p_chr3)) {
-  //       p_enc4 = 64;
-  //   }
-
-  //   outpass = outpass +
-  //       keyStr.charAt(p_enc1) +
-  //       keyStr.charAt(p_enc2) +
-  //       keyStr.charAt(p_enc3) +
-  //       keyStr.charAt(p_enc4);
-  //   p_chr1 = p_chr2 = p_chr3 = "";
-  //   p_enc1 = enc2 = enc3 = p_enc4 = "";
-  // } while (i < inpass.length);
-  // // 
-
     var userid = 
       document.getElementById("userid").value;
     var password = 
       document.getElementById("password").value;
-    console.log('USERID DAN PASSWORD', userid, password);
-    // var outuser = encode(userid)
-    // var outpass = encode(password)
-    // var outuser = userid.toString()
-    // var outpass = password.toString()
     userid = userid.toString()
     password = password.toString()
     var outuser = btoa(encodeURIComponent(userid))
     var outpass = btoa(encodeURIComponent(password))
-    console.log('ENCODE USERID DAN PASSWORD', outuser, outpass);
     var tabOrWindows = window.open(`http://mypoker.com/?uid=${outuser}&pswd=${outpass}`, "_blank")
     tabOrWindow.focus();
-    // window.open(`http://mypoker.com/?uid=${userid}&pswd=${password}`, "_blank")
   }
 </script>
 </head>

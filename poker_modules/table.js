@@ -377,11 +377,7 @@ Table.prototype.actionToNextPlayer = function () {
             this.seats[this.public.activeSeat].socket.emit('postBigBlind')
             break
         case 'preflop':
-            // if (this.otherPlayersAreAllIn()) {
-            //     this.seats[this.public.activeSeat].socket.emit('actOthersAllIn')
-            // } else {
-                this.seats[this.public.activeSeat].socket.emit('actBettedPot')
-            // }
+            this.seats[this.public.activeSeat].socket.emit('actBettedPot')
 
             if (this.public.phase === 'preflop') {
                 this.timeoutFolded()
@@ -392,11 +388,7 @@ Table.prototype.actionToNextPlayer = function () {
         case 'river':
             // If someone has betted
             if (this.public.biggestBet) {
-                // if (this.otherPlayersAreAllIn()) {
-                //     this.seats[this.public.activeSeat].socket.emit('actOthersAllIn')
-                // } else {
-                    this.seats[this.public.activeSeat].socket.emit('actBettedPot')
-                // }
+                this.seats[this.public.activeSeat].socket.emit('actBettedPot')
             } else {
                 this.seats[this.public.activeSeat].socket.emit('actNotBettedPot')
             }
@@ -522,9 +514,19 @@ Table.prototype.playerFolded = function () {
         this.pot.addTableBets(this.seats)
         const winnersSeat = this.findNextPlayer()
         this.pot.giveToWinner(this.seats[winnersSeat])
+        
+        // 
+        this.public.biggestBet = 0
+        // 
+
         this.endRound()
     } else {
         if (this.lastPlayerToAct === this.public.activeSeat) {
+            
+            // 
+            this.public.biggestBet = 0
+            // 
+        
             this.endPhase()
         } else {
             this.actionToNextPlayer()
@@ -567,7 +569,6 @@ Table.prototype.playerCalled = function () {
     })
     this.emitEvent('table-data', this.public)
     if (this.lastPlayerToAct === this.public.activeSeat){
-        //  || this.otherPlayersAreAllIn()) {
         this.endPhase()
     } else {
         this.actionToNextPlayer()
@@ -671,7 +672,6 @@ Table.prototype.playerSatIn = function (seat) {
  * @param int seat
  */
 Table.prototype.playerLeft = function (seat) {
-    console.log('PLAYER LEFT: ' + this.seats[seat].public.name);
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
@@ -723,7 +723,6 @@ Table.prototype.playerLeft = function (seat) {
  * @param bool 	playerLeft		(flag that shows that the player actually left the table)
  */
 Table.prototype.playerSatOut = function (seat, playerLeft) {
-    console.log('PLAYER SAT OUT: ' + this.seats[seat]);
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
@@ -779,9 +778,7 @@ Table.prototype.playerSatOut = function (seat, playerLeft) {
         }
     } else {
         this.seats[seat].sitOut()
-        // 
-        this.playerLeft()
-        // 
+        // this.playerLeft()
     }
     this.emitEvent('table-data', this.public)
 }
@@ -820,36 +817,21 @@ Table.prototype.removeAllCardsFromPlay = function () {
 Table.prototype.endRound = function () {
     var apiUrl = 'http://mypoker.com/data/api'
     for (i in this.seats) {
-        // var dataSeats = this.seats[i].public
         var seats = this.seats[i]
-        if (seats != null) {
-            // console.log('DATA PLAYER SEATS END ROUND: ', seats);
+        if (seats !== null) {
             
             const id = seats.public.id
             const balance = seats.chips
             const balancePlay = seats.public.chipsInPlay
             const balanceAmount = balance + balancePlay
-            console.log('DATA PLAYER SEATS END ROUND');
-            console.log(`ID : ${id}; BALANCE : ${balance}; CHIPS IN PLAY: ${balancePlay}; BALANCE AMOUNT: ${balanceAmount}`);
             try {
                 request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount})   
             } catch (error) {
                 console.log('ERROR UPDATE DATA: ', error);
             }
         }
-        // console.log('DATA PLAYER SEATS END ROUND: ', seats);
-        // console.log('DATA PLAYER SEATS END ROUND: ', dataSeats);
     }
-    for (i in this.public.seats) {
-        var pseats = this.public.seats[i]
-        if (pseats != null) {
-            console.log('DATA PLAYER END ROUND: ', pseats);
-        }
-        if (pseats != null && pseats.chipsInPlay <= 0) {
-            console.log('CHIPS HABIS: ', pseats);
-        }
-    }
-    console.log('END ROUND');
+
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
@@ -864,14 +846,11 @@ Table.prototype.endRound = function () {
     // Sitting out the players who don't have chips
     for (i = 0; i < this.public.seatsCount; i++) {
         if (this.seats[i] !== null && this.seats[i].public.chipsInPlay <= 0 && this.seats[i].public.sittingIn) {
-            console.log('SITTING OUT ENDROUND: ', this.public.seats[i]);
             this.seats[i].sitOut()
             this.playersSittingInCount--
-
-            console.log('PLAYER SITTING OUT COUNT ENDROUND: ', this.playersSittingInCount);
+            this.emitEvent('chipsOut', this.public)
         }
     }
-
     // If there are not enough players to continue the game, stop it
     if (this.playersSittingInCount < 2) {
         this.stopGame()
@@ -884,7 +863,6 @@ Table.prototype.endRound = function () {
  * Method that stops the game
  */
 Table.prototype.stopGame = function () {
-    console.log('STOP GAME');
     this.stopTimeoutSB()
     this.stopTimeoutBB()
     this.stopTimeoutFolded()
@@ -905,7 +883,7 @@ Table.prototype.stopGame = function () {
  */
 Table.prototype.timeoutFolded = function () {
     this.timeoutFold = setTimeout(() => {
-        this.playerFolded()
+        // this.playerFolded()
         this.stopTimeoutFolded()
     }, 20000)
     

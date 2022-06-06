@@ -1,13 +1,13 @@
 const socket = io.connect(
-    'http://127.0.0.1:8000/',
-    {
-        "transports": ["websocket"], 
+    'http://127.0.0.1:8000/', 
+    { 
+        "rememberTransport": "false", 
+        "transports": ["websocket", "falshsocket", "polling"], 
         "allowUpgrades": "false",
         "upgrades": ["false"],
         "pingInterval": "1800000",
         "pingTimeout": "1800000"
-    }
-    );
+    });
 
 const app = angular.module('app', ['ngRoute', 'ngCookies']).config(function ($routeProvider, $locationProvider,) {
 

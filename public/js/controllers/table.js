@@ -106,9 +106,7 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
 
         $scope.callAmount = function () {
             if ($scope.mySeat === null || typeof $scope.table.seats[$scope.mySeat] === 'undefined' || $scope.table.seats[$scope.mySeat] == null) return 0
-            // const callAmount = +$scope.table.biggestBet - $scope.table.seats[$scope.mySeat].bet
             const callAmount = $scope.table.biggestBet
-            // console.log('CALL AMOUNT = ', callAmount);
             return callAmount > $scope.table.seats[$scope.mySeat].chipsInPlay ? $scope.table.seats[$scope.mySeat].chipsInPlay : callAmount
         }
 
@@ -133,11 +131,18 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
         }
 
         $scope.showCallButton = function () {
-            return $scope.actionState === 'actBettedPot' && !($scope.actionState === 'actBettedPot' && $scope.table.biggestBet == $scope.table.seats[$scope.mySeat].bet)
+            console.log('ACTION STATE: ', $scope.actionState);
+            console.log('BET AMOUNT: ', $scope.betAmount);
+            console.log('BIGGEST BET: ', $scope.table.biggestBet);
+            console.log('BIG BLIND BET: ', $scope.table.bigBlind);
+            return $scope.actionState === 'actBettedPot' 
+            && !($scope.actionState === 'actBettedPot' && $scope.table.biggestBet == $scope.table.seats[$scope.mySeat].bet) 
+            && !($scope.table.biggestBet >= $scope.table.seats[$scope.mySeat].chipsInPlay)
         }
 
         $scope.showAllinButton = function () {
-            return $scope.actionState === 'actOthersAllIn'
+            return $scope.actionState === 'actBettedPot'
+            && $scope.table.biggestBet >= $scope.table.seats[$scope.mySeat].chipsInPlay
         }
 
         $scope.showBetButton = function () {
@@ -158,7 +163,6 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
         }
 
         $scope.showBetInput = function () {
-            console.log('INI SCOPE RAISED: ', $scope.raised);
             return (
                 $scope.actionState === 'actNotBettedPot' || 
                 $scope.actionState === 'actBettedPot'
@@ -247,7 +251,6 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
 
         // Leave the table (not the room)
         $scope.leaveTable = function () {
-            // $scope.postBlind(false)
             socket.emit('leaveTable', function (response) {
                 if (response.success) {
                     $rootScope.sittingOnTable = null
@@ -291,6 +294,8 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
                     $scope.actionState = ''
                     $scope.$digest()
                     $scope.raised = 0
+                    $scope.table.biggestBet = 0
+                    $scope.table.biggestBet = $scope.table.bigBlind
                 }
             })
         }
@@ -302,6 +307,7 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
                     $scope.actionState = ''
                     $scope.$digest()
                     $scope.raised = 0
+                    $scope.table.biggestBet = $scope.table.bigBlind
                 }
             })
         }
@@ -312,7 +318,7 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
                     sounds.playBetSound()
                     $scope.actionState = ''
                     $scope.$digest()
-                    // $scope.raised = 0
+                    $scope.table.biggestBet = $scope.table.bigBlind
                 }
             })
         }
@@ -335,22 +341,20 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
                 case 'fold':
                     sounds.playFoldSound()
                     $scope.actionState = ''
-                    // $scope.raised = 0
+                    $scope.betAmount = $scope.table.bigBlind
+                    $scope.table.biggestBet = $scope.table.bigBlind
                     break
                 case 'check':
                     sounds.playCheckSound()
                     $scope.actionState = ''
-                    // $scope.raised = 0
                     break
                 case 'call':
                     sounds.playCallSound()
                     $scope.actionState = ''
-                    // $scope.raised = 0
                     break
                 case 'bet':
                     sounds.playBetSound()
                     $scope.actionState = ''
-                    // $scope.raised = 0
                     break
                 case 'raise':
                     sounds.playRaiseSound()
@@ -382,24 +386,17 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
 
         // When the game has stopped
         socket.on('gameStopped', function (data) {
-            console.log('GAME STOP');
             $scope.table = data
             $scope.actionState = 'waiting'
             $scope.$digest()
             $scope.betAmount = $scope.table.bigBlind
             $scope.table.biggestBet = 0
-            // 
-            const proposedBet = +$scope.table.biggestBet + $scope.table.bigBlind
-            console.log('INI BET AMOUNT = ', $scope.betAmount);
-            console.log('INI BIGGEST BET = ', $scope.table.biggestBet);
-            console.log('INI BIG BLIND = ', $scope.table.bigBlind);
-            console.log('INI PROPOSED BET = ', proposedBet);
-            // 
+            $scope.table.biggestBet = $scope.table.bigBlind
             if ($scope.table.seats[$scope.mySeat].chipsInPlay <= 0) {
-                console.log('INI CHIPS HABIS: '+$scope.table.seats[$scope.mySeat].chipsInPlay);
                 $scope.leaveTable()
+                $scope.table.biggestBet = 0
+                $scope.table.biggestBet = $scope.table.bigBlind
             }
-            // 
         })
 
         // When the player is asked to place the small blind
@@ -444,6 +441,15 @@ app.controller('TableController', ['$scope', '$rootScope', '$http', '$routeParam
 
             $scope.$digest()
             $scope.betAmount = $scope.table.bigBlind
-            // $scope.table.biggestBet = 0
+            $scope.table.biggestBet = $scope.table.bigBlind
+        })
+
+        // 
+        socket.on('chipsOut', function (data) {
+            if ($scope.table.seats[$scope.mySeat].chipsInPlay <= 0) {
+                $scope.leaveTable()
+                $scope.table.biggestBet = 0
+                $scope.table.biggestBet = $scope.table.bigBlind
+            }
         })
     }])
