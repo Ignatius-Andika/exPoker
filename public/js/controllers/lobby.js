@@ -1,6 +1,5 @@
-app.controller('LobbyController', ['$scope', '$rootScope', '$http', function ($scope, $rootScope, $http, $route) {
+app.controller('LobbyController', ['$scope', '$rootScope', '$http', '$location', '$cookies', '$cookieStore',  function ($scope, $rootScope, $http, $location, $cookies, $cookieStore,) {
     $scope.lobbyTables = []
-    // $scope.newScreenName = ''
     
     $http({
         url: '/lobby-data',
@@ -9,43 +8,37 @@ app.controller('LobbyController', ['$scope', '$rootScope', '$http', function ($s
         for (tableId in data) {
             $scope.lobbyTables[tableId] = data[tableId]
         }
-        console.log('INI DATA', data);
     })
 
-    $scope.register = function () {
-        // If there is some trimmed value for a new screen name and password
-        if ($scope.newScreenName && $scope.password) {
-            socket.emit('register', $scope.newScreenName, $scope.password, function (response) {
-                if (response.success) {
-                    $rootScope.screenName = response.screenName
-                    $rootScope.password = response.password
-                    $rootScope.totalChips = response.totalChips
-                    $scope.registerError = ''
-                    $rootScope.$digest()
-                } else if (response.message) {
-                    $scope.registerError = response.message
-                }
-                $scope.$digest()
-                const player = {}
-                player.name = $rootScope.screenName
-                player.password = $rootScope.password
-                player.balance = $rootScope.totalChips
-                console.log('DATA NAME', $rootScope.screenName);
-                console.log('DATA PASSWORD', response.password);
-                console.log('DATA PLAYER', player);
-                
-            })
+    var parValues = $location.search();
+    var uid = parValues.uid
+    var pswd = parValues.pswd
+    var mainUrl = $location.url()
+    $scope.mainUrl = mainUrl
+    uid = decodeURIComponent(atob(uid))
+    pswd = decodeURIComponent(atob(pswd))
+
+    if (uid && pswd) {
+        try {
+        socket.emit('register', uid, pswd, function (response) {
+            if (response.success) {
+                $rootScope.screenName = response.screenName
+                $rootScope.totalChips = response.totalChips
+                $scope.registerError = ''
+                $rootScope.$digest()
+            } else if ('INI RESPONSE ERROR REGISTER', response.message) {
+                $scope.registerError = response.message
+            }
+            $scope.$digest()
+        })   
+        } catch (error) {
+         console.log('SOCKET EMIT REGISTER ERROR', error);   
         }
     }
 
-    $scope.reloadRoute = function() {
- 
-        // Reload only the route which will re-instantiate
-        $route.reload();
-    };
-
-    // disconnect socket
+    // disconnect socket    
     $scope.disconnect = function () {
         socket.emit('disconnect')
+        window.top.close()
     }
 }])

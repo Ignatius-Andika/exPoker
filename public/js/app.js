@@ -1,11 +1,16 @@
-const socket = io.connect('http://localhost:8000/',{transports: ["websocket"], upgrade: false});
-// io.connect('http://localhost:8000/', {
-//     // path: '/socket',
-//     transports: ['websocket'],
-//     auth: { slug: 'slug', token: 'token' },
-// });
+const socket = io.connect(
+    'http://127.0.0.1:8000/', 
+    { 
+        "rememberTransport": "false", 
+        "transports": ["websocket", "falshsocket", "polling"], 
+        "allowUpgrades": "false",
+        "upgrades": ["false"],
+        "pingInterval": "1800000",
+        "pingTimeout": "1800000"
+    });
 
-const app = angular.module('app', ['ngRoute']).config(function ($routeProvider, $locationProvider) {
+const app = angular.module('app', ['ngRoute', 'ngCookies']).config(function ($routeProvider, $locationProvider,) {
+
     $routeProvider.when('/table-9/:tableId', {
         templateUrl: '/partials/table-9-handed.html',
         controller: 'TableController'
@@ -26,17 +31,18 @@ const app = angular.module('app', ['ngRoute']).config(function ($routeProvider, 
         controller: 'LobbyController'
     })
 
-    $routeProvider.otherwise({ redirectTo: '/' })
+    // $routeProvider.otherwise({ redirectTo: '/' })
 
     $locationProvider.html5Mode(true).hashPrefix('!')
 })
 
-app.run(function ($rootScope) {
+app.run(function ($rootScope, $location) {
     $rootScope.screenName = ''
-    $rootScope.password = ''
     $rootScope.totalChips = 0
     $rootScope.sittingOnTable = ''
-    console.log('DATA NAME APP', $rootScope.screenName);
-    console.log('DATA PASSWORD APP', $rootScope.password);
 })
 
+function url($location) {
+    var loginUrl = $location.url()
+    return loginUrl
+}

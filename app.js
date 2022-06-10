@@ -1,7 +1,21 @@
 const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
-const io = require('socket.io').listen(server)
+// const io = require('socket.io').listen(server)
+const io = require('socket.io',
+  {
+    rememberTransport: false, 
+    transports: 
+    [
+      'websocket', 
+      'flashsocket', 
+      'polling'
+    ], 
+    wsEngine: 'ws', 
+    pingTimeout: '1800000', 
+    pingInterval: '1800000'
+  }
+).listen(server)
 const lessMiddleware = require('less-middleware')
 const path = require('path')
 const Table = require('./poker_modules/table')
@@ -18,57 +32,11 @@ app.use(app.router)
 app.use(lessMiddleware(__dirname + '/public'))
 app.use(express.static(path.join(__dirname, 'public')))
 
-//
-// const cookieSession = require('cookie-session') 
-// app.use(cookieSession({
-//   name: 'player-session',
-
-//   // Cookie Options
-//   maxAge: 6 * 60 * 60 * 1000 // 24 hours
-// }))
-
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
-
-// function pushCookie() {
-  // app.use(function (req, res, next) {
-  //   // check if client sent cookie
-  //   var cookie = req.cookies.cookieName;
-  //   const dt = []
-  //   for (const i in players) {
-  //     var name = players[i].public.name
-  //   }
-  //   for (const i in tables){
-  //     dt[i] = {}
-  //     dt[i].id = tables[i].public.id
-  //     var tname = tables[i].public.name
-  //     dt[i].seatsCount = tables[i].public.seatsCount
-  //     dt[i].playersSeatedCount = tables[i].public.playersSeatedCount
-  //     dt[i].bigBlind = tables[i].public.bigBlind
-  //     dt[i].smallBlind = tables[i].public.smallBlind
-  //   }
-  //   if (cookie === undefined) {
-  //     // no: set a new cookie
-  //     var randomNumber=Math.random().toString();
-  //     randomNumber=randomNumber.substring(2,randomNumber.length);
-  //     res.cookie('DATA TABLE',tname, { maxAge: 900000, httpOnly: true });
-  //     res.cookie('DATA PLAYER',name, { maxAge: 900000, httpOnly: true });
-  //     // res.cookie('PLAYER',player, { maxAge: 900000, httpOnly: true });
-  //     console.log('cookie created successfully');
-  //   } else {
-  //     // yes, cookie was already present 
-  //     console.log('cookie exists', cookie);
-  //   } 
-  //   next(); // <-- important!
-  // });
-// }
-// 
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // to false certified api
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // to false certified data api
 
 // API DB URL
 // var apiUrl = 'http://localhost/PokerAPI/api'
-var apiUrl = 'http://mypoker.com/data/api/'
+var apiUrl = 'http://mypoker.com/data/api'
 
 // Development Only
 if (app.get('env') == 'development') {
@@ -78,45 +46,32 @@ if (app.get('env') == 'development') {
 const players = []
 const tables = []
 var eventEmitter = {}
+var uid = ''
+var pswd = ''
 
-const port = process.env.PORT || 8000
-// const port = 8000
-// const hostname = '127.0.0.1'
+// const port = process.env.PORT || 8000
+const port = 8000
+const hostname = '127.0.0.1'
 
-server.listen(port)
-console.log('Listening on port ' + port)
+// server.listen(port)
+// console.log('Listening on port ' + port)
 
-// server.listen(port, hostname, () => {
-//   console.log(`Server running at http://${hostname}:${port}/`);
-//   });
-
-// 
-// io.sockets.on('connection', function (socket) {
-//
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+  });
 
 // The lobby
 app.get('/', function (req, res) {
-  // const pemain = []
-  // for (let i in players) {
-  //   var player = {}
-    
-  // }
-  // res.cookie('player', players)
-  res.render('index')
+  uid = req.query['uid']
+  pswd = req.query['pswd']
+  uid = decodeURIComponent(atob(uid))
+  pswd = decodeURIComponent(atob(pswd))
+  if (!uid && !pswd) {
+    res.render('index')    
+  } else {
+    res.render('index')
+  }
 })
-
-// 
-const username = 'andika'
-const password = 'poker_dev'
-// app.get(`?uname=${username}&paswd=${password}`, function (req, res, err) {
-app.get(`/uname=andika&paswd=poker_dev`, function (req, res, err) {
-  res.render('index')  
-})
-
-app.get('/login', function (req, res) {
-  res.render('index')
-})
-// 
 
 // The lobby data (the array of tables and their data)
 app.get('/lobby-data', function (req, res) {
@@ -131,63 +86,24 @@ app.get('/lobby-data', function (req, res) {
     lobbyTables[tableId].bigBlind = tables[tableId].public.bigBlind
     lobbyTables[tableId].smallBlind = tables[tableId].public.smallBlind
   }
-
-  // 
-  const player = []
-  for (const i in players) {
-    player[i] = {}
-    player[i].id = players[i].public.id
-    player[i].name = players[i].public.name
-    player[i].chips = players[i].chips
-
-    var pemain = {}
-    pemain.id = players[i].public.id
-    pemain.name = players[i].public.name
-    pemain.chips = players[i].chips
-    // pl.room = player[i].room
-  }
-  res.cookie("table", lobbyTables);
-  res.cookie("player", player);
-  console.log('COOKIE PLAYER', player);
-  // var table = JSON.parse(cookie("table"));
-  // console.log('COOKIE TABLE', table);
-
   res.send(lobbyTables)
 })
 
 // If the table is requested manually, redirect to lobby
-app.get('/table-9/:tableId', function (req, res) {
-  // for (const i in players) {
-  //     if (!players[i].public.name && players[i].public.name !== newScreenName) {
-  //       try {
-  //         res.redirect('/')
-  //       } catch (error) {
-  //         console.log('REFRESH ERROR', error);
-  //       } 
-  //     }
-  //   // var name = players[i].public.name
-  //   // res.cookie('DATA PLAYER',players[i].public.name, { maxAge: 900000, httpOnly: true });
-  //   // res.redirect('..')
-  //   console.log('ROUTE TABLE 9');
-  // }
-  // // res.redirect('/')
-  for (const i in players) {
-    player = players[i]
-    console.log('DATA Player Meja 9', player);
+app.get('/table-9/:tableId', function (req, res, next) {
+  uid = req.query['uid']
+  pswd = req.query['pswd']
+  var userId = decodeURIComponent(atob(uid))
+  var tableId = req.params.tableId
+  var url9 = `/table-9/${tableId}?uid=${uid}&pswd=${pswd}`
+  for (i in players) {
+    var playerId = players[i].public.id
   }
   try {
-    if (typeof req.params.tableId !== 'undefined' && typeof tables[req.params.tableId] !== 'undefined') {
-      // res.send({ table: tables[req.params.tableId].public })
-
-      // res.cookie('Player Data', 'randomNumber', { maxAge: 900000, httpOnly: true });
-      console.log('REQ PARAM TABLE', req.params.tableId);
-      // console.log('TABLES REQ PARAM TABLE', tables[req.params.tableId]);
-      // if (typeof players[id] !== 'undefined'){
-      //   console.log('PLAYER REQ PARAM',players[id] );
-      // }
-      // res.redirect('/')
-      const tableId = req.params.tableId
-      res.redirect(`/table-9/${tableId}`)
+    if(userId !== playerId){
+      res.redirect('/')
+    } else {
+      res.location(url9)
     }
   } catch (error) {
     console.log('ERROR TABLE 9', error);
@@ -196,99 +112,40 @@ app.get('/table-9/:tableId', function (req, res) {
 
 // If the table is requested manually, redirect to lobby
 app.get('/table-7/:tableId', function (req, res) {
-  // const id = req.params.tableId
-  // res.redirect(`/table-7/${id}`)
-  res.redirect('back')
-  // for (const i in players) {
-  //   var player = players[i]  
-  //   if (player === "undefined"){
-  //     try {
-  //       res.redirect('/')
-  //       console.log('SOCKET TABLE 7 UNDEFINED', player);         
-  //     } catch (error) {
-  //       console.log('ERROR TABLE 7 UNDEFINED');
-  //     }
-  //   }
-  //   if (player !== 'undefined') {
-  //     try {
-
-  //       // 
-  //       const dplayer = []
-  //       for (const i in players) {
-  //         dplayer[i] = {}
-  //         dplayer[i].id = players[i].public.id
-  //         dplayer[i].name = players[i].public.name
-  //         dplayer[i].chips = players[i].chips
-
-  //         var pemain = {}
-  //         pemain.id = players[i].public.id
-  //         pemain.name = players[i].public.name
-  //         pemain.chips = players[i].chips
-  //         // pl.room = player[i].room
-  //       }
-  //       // const dp = JSON.stringify(player)
-  //       res.cookie("DataPlayer", dplayer, {maxAge: 900000, httpOnly: true} )
-  //       console.log("PEMAIN", pemain);
-  //       //
-
-  //       console.log('SOCKET TABLE 7', dplayer); 
-  //     } catch (error) {
-  //       console.log('ERROR Table 7', error);
-  //     }
-  //   } 
-  //   // else {
-  //   //   try {
-  //   //     res.redirect('/')
-  //   //     console.log('SOCKET TABLE 7 UNDEFINED', player);         
-  //   //   } catch (error) {
-  //   //     console.log('ERROR TABLE 7 UNDEFINED');
-  //   //   }
-  //   // } 
-  // }
-  // console.log('DATA Player Meja 7', player);
+  uid = req.query['uid']
+  pswd = req.query['pswd']
+  var userId = decodeURIComponent(atob(uid))
+  var tableId = req.params.tableId
+  var url7 = `/table-7/${tableId}?uid=${uid}&pswd=${pswd}`
+  for (i in players) {
+    var playerId = players[i].public.id
+  }
+  try {
+    if(userId !== playerId){
+      res.redirect('/')
+    } else {
+      res.location(url7)
+    }
+  } catch (error) {
+    console.log('ERROR TABLE 7', error);
+  }
 })
 
 // If the table is requested manually, redirect to lobby
 app.get('/table-5/:tableId', function (req, res) {
-//   for (const i in players) {
-//     if (!players[i].public.name && players[i].public.name !== newScreenName) {
-//       try {
-//         res.redirect('/')
-//       } catch (error) {
-//         console.log('REFRESH ERROR', error);
-//       } 
-//     }
-//     console.log('PLAYER SCREEN NAME', players[i].public.name);
-// }
-  // res.redirect('/')
-  // res.render('index')
-  // res.end
-  // res.redirect(req.originalUrl)
-  // res.redirect(req.get('referer'));
-
-  for (const i in players) {
-    var player = players[i]
-    var play = {}
-    play.socket = player.socket.id
-    play.playerId = player.public.id 
-    play.name = player.public.name
-    play.balance = player.chips
-
-    console.log('DATA Player Meja 5', play);
+  uid = req.query['uid']
+  pswd = req.query['pswd']
+  var userId = decodeURIComponent(atob(uid))
+  var tableId = req.params.tableId
+  var url5 = `/table-5/${tableId}?uid=${uid}&pswd=${pswd}`
+  for (i in players) {
+    var playerId = players[i].public.id
   }
   try {
-    if (typeof req.params.tableId !== 'undefined' && typeof tables[req.params.tableId] !== 'undefined') {
-      // res.send({ table: tables[req.params.tableId].public })
-      var tableId = req.params.tableId
-
-      // res.cookie('Player Data', 'randomNumber', { maxAge: 900000, httpOnly: true });
-      console.log('REQ PARAM TABLE', req.params.tableId);
-      // console.log('TABLES REQ PARAM TABLE', tables[req.params.tableId]);
-      // if (typeof players[id] !== 'undefined'){
-      //   console.log('PLAYER REQ PARAM',players[id] );
-      // }
+    if(userId !== playerId){
       res.redirect('/')
-      // res.redirect(`/table-5/:${tableId}`)
+    } else {
+      res.location(url5)
     }
   } catch (error) {
     console.log('ERROR TABLE 5', error);
@@ -299,36 +156,7 @@ app.get('/table-5/:tableId', function (req, res) {
 app.get('/table-data/:tableId', function (req, res) {
   try {
     if (typeof req.params.tableId !== 'undefined' && typeof tables[req.params.tableId] !== 'undefined') {
-      // 
-      const player = []
-      for (const i in players) {
-        player[i] = {}
-        player[i].id = players[i].public.id
-        player[i].name = players[i].public.name
-        player[i].chips = players[i].chips
-
-        var pemain = {}
-        pemain.id = players[i].public.id
-        pemain.name = players[i].public.name
-        pemain.chips = players[i].chips
-        // pl.room = player[i].room
-      }
-      // const dp = JSON.stringify(player)
-      //
-      
-      res.cookie("DataPlayer", player, {maxAge: 900000, httpOnly: true} )
-      // res.cookie("supportedProjects", JSON.stringify([2500,4,6]) );
-      // res.cookie("hi", [1,2,3])
-      // const json_str = getCookie('supportedProjects');
-      // const arr = JSON.parse(json_str);
-      // res.cookie("Players In Room" , player);
-      // res.write(JSON.stringify(player))
-      // res.write({ table: tables[req.params.tableId].public })
       res.send({ table: tables[req.params.tableId].public })
-      console.log('FUNGSI TABLE DATA', { table: tables[req.params.tableId].public }, {player: player}, pemain,  req.params.tableId);
-      // console.log('DATA COOKIE', cookie);
-
-
     }
   } catch (error) {
     console.log('ERROR FUNGSI TABLE', error);
@@ -336,15 +164,10 @@ app.get('/table-data/:tableId', function (req, res) {
 })
 
 io.sockets.on('connection', function (socket) {
-  //
-  // socket.handshake.headers
+  socket.handshake.headers
+  socket.connected = true
   console.log(`socket.io connected: ${socket.id}`);
-  // save socket.io socket in the session
-  console.log("session at socket.io connection:\n", socket.request.session);
   console.log("Socket Connection: ", socket.connected);
-  // socket.request.session.socketio = socket.id;
-  // socket.request.session.save(); 
-  // 
 
   /**
    * When a player enters a room
@@ -362,19 +185,31 @@ io.sockets.on('connection', function (socket) {
   /**
    * When a player leaves a room
    */
-  socket.on('leaveRoom', function () {
+  socket.on('leaveRoom', function (callback) {
     if (typeof players[socket.id] !== 'undefined' && players[socket.id].room !== null && players[socket.id].sittingOnTable === false) {
       // Remove the player from the socket room
       socket.leave('table-' + players[socket.id].room)
       // Remove the room to the player's data
       players[socket.id].room = null
+      
+      const id = players[socket.id].public.id
+      const balance = players[socket.id].chips
+      const balancePlay = players[socket.id].public.chipsInPlay
+      const balanceAmount = balance + balancePlay
+      request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
     }
   })
 
   /**
    * When a player disconnects
    */
-  socket.on('disconnect', function () {
+  socket.on('disconnect', function (callback) {
+    const id = players[socket.id].public.id
+    const balance = players[socket.id].chips
+    const balancePlay = players[socket.id].public.chipsInPlay
+    const balanceAmount = balance + balancePlay
+    request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
+
     // If the socket points to a player object
     if (typeof players[socket.id] !== 'undefined') {
       // If the player was sitting on a table
@@ -388,10 +223,11 @@ io.sockets.on('connection', function (socket) {
       }
       // Remove the player object from the players array
       delete players[socket.id]
+      console.log('Client Disconnected');
+      console.log('SOCKET ID DISCONNECT: ', socket.id);
+      console.log('Socket Connection: ', socket.connected);
+      console.log('DISSCONNECT REASON: ', callback);
     }
-
-    console.log('SOCKET ID DISCONNECT', socket.id);
-    console.log("Socket Connection: ", socket.connected);
   })
 
   /**
@@ -412,9 +248,9 @@ io.sockets.on('connection', function (socket) {
 
       const id = players[socket.id].public.id
       const balance = players[socket.id].chips
-      request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balance}, callback)
-      console.log('PLAYER ID', id);
-      console.log('PLAYER BALANCE', balance);
+      const balancePlay = players[socket.id].public.chipsInPlay
+      const balanceAmount = balance + balancePlay
+      request({ url: `${apiUrl}/memberpoker/${id}`, method: 'PUT', json: balanceAmount}, callback)
     }
   })
 
@@ -423,17 +259,14 @@ io.sockets.on('connection', function (socket) {
    * @param string newScreenName
    * @param function callback
    */
-  // 
-  socket.on('register', function (newScreenName, password, callback) {
-
+  socket.on('register', function (uid, pswd, callback) {
     // If a new screen name is posted
-    if (typeof newScreenName !== 'undefined' && typeof password !== 'undefined') {
-      var newScreenName = newScreenName.trim()
-      var password = password.trim()
+    if (uid !== 'undefined' && pswd !== 'undefined') {
+      var memberUrl = apiUrl+'/memberpoker/'+uid+'/'+ pswd
 
-      request(`${apiUrl}/memberpoker/${newScreenName}/${password}`, function (err, res, req) {
+      request(memberUrl, function (err, res, req) {
         if (err) {
-          console.log(err);
+          console.log('REQUEST PLAYER ERROR', err);
         } else {
           var member = JSON.parse(req);
         }
@@ -442,14 +275,14 @@ io.sockets.on('connection', function (socket) {
         for (let i in member) {
 
           var memberId = member[i].Member_UserID
-          var newScreenName = member[i].MemberUserName
+          var screenName = member[i].MemberUserName
           var balanceAmount = member[i].BalanceAmount
 
           // If the new screen name is not an empty string
-          if (newScreenName && typeof players[socket.id] === 'undefined') {
+          if (screenName && typeof players[socket.id] === 'undefined') {
             let nameExists = false
             for (const i in players) {
-              if (players[i].public.name && players[i].public.name == newScreenName) {
+              if (players[i].public.name && players[i].public.name == screenName) {
                 nameExists = true
                 break
               }
@@ -457,71 +290,13 @@ io.sockets.on('connection', function (socket) {
 
             if (!nameExists) {
               // Creating the player object
-              players[socket.id] = new Player(socket, memberId, newScreenName, balanceAmount)
-              callback({ success: true, screenName: newScreenName, totalChips: players[socket.id].chips })
+              players[socket.id] = new Player(socket, memberId, screenName, balanceAmount)
+              callback({ success: true, screenName: screenName, totalChips: players[socket.id].chips, lobbyUrl: `?uid=${uid}` })
 
               var player = {}
               player.id = players[socket.id].socket.id
               player.data = players[socket.id].public 
               player.balance = players[socket.id].chips
-              console.log('DATA PLAYERS MASUK', player);
-
-              // 
-              // let cookieString = socket.request.headers.cookie;
-              // console.log('INI COOKIE STRING', cookieString);
-
-              // const player = []
-              // for (const i in players) {
-              //   // Sending the public data of the public tables to the lobby screen
-              //   player[i] = {}
-              //   player[i].id = players[i].public.id
-              //   player[i].name = players[i].public.name
-              //   player[i].chips = players[i].chips
-              //   // player[i].room = player[i].room
-              // }
-              // console.log('TEST DATA PLAYER', player);
-
-              //
-              try {
-                // app.use(function (req, res, next) {
-                  // check if client sent cookie
-                  // var cookie = req.cookies.cookieName;
-                  const player = []
-                  const dt = []
-                  for (const i in players) {
-                    player[i] = {}
-                    player[i].id = players[i].public.id
-                    player[i].name = players[i].public.name
-                    // player[i].chips = players[i].chips
-                  }
-                  for (const i in tables){
-                    dt[i] = {}
-                    dt[i].id = tables[i].public.id
-                    var tname = tables[i].public.name
-                    dt[i].name = tables[i].public.name
-                    dt[i].seatsCount = tables[i].public.seatsCount
-                    dt[i].playersSeatedCount = tables[i].public.playersSeatedCount
-                    dt[i].bigBlind = tables[i].public.bigBlind
-                    dt[i].smallBlind = tables[i].public.smallBlind
-                  }
-                  // if (cookie === undefined) {
-                    // no: set a new cookie
-                    // var randomNumber=Math.random().toString();
-                    // randomNumber=randomNumber.substring(2,randomNumber.length);
-                    res.cookie('DATA TABLE',dt, { maxAge: 900000, httpOnly: true });
-                    res.cookie('DATA PLAYER',player, { maxAge: 900000, httpOnly: true });
-                    // res.cookie('PLAYER',player, { maxAge: 900000, httpOnly: true });
-                    console.log('cookie created successfully');
-                  // } else {
-                    // yes, cookie was already present 
-                    console.log('cookie exists', cookie);
-                  // } 
-                  next(); // <-- important!
-                // });                
-              } catch (error) {
-                console.log('INI ERROR COOKIE', error);
-              } 
-              // 
 
             } else {
               callback({ success: false, message: 'This account is taken' })
@@ -536,7 +311,8 @@ io.sockets.on('connection', function (socket) {
       })
 
     } else {
-      callback({ success: false, message: 'Enter Username and Password' })
+      callback({ success: false, message: 'Username and Password Undefined' })
+      delete players[socket.id]
     }
   })
 
@@ -751,7 +527,7 @@ io.sockets.on('connection', function (socket) {
 })
 
 /**
- * Event emitter function that will be sent to the table objects
+ *  * Event emitter function that will be sent to the table objects
  * Tables use the eventEmitter in order to send events to the client
  * and update the table data in the ui
  * @param string tableId
